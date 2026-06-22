@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TenderProof — prove you picked carefully, on every load</title>
+<style>
+  :root{
+    --navy:#0f1b2d; --navy2:#16263d; --ink:#1a2433; --muted:#5b6b80; --line:#e4e9f0;
+    --bg:#f7f9fc; --white:#ffffff; --blue:#2f6df6; --blue-d:#1d4fc4; --green:#139a5b; --amber:#c77d12; --red:#d23f3f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:600;padding:12px 22px;border-radius:10px;cursor:pointer;border:none}
+  .btn-primary{background:var(--blue);color:#fff}
+  .btn-primary:hover{background:var(--blue-d)}
+  .btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3)}
+  .btn-dark{background:var(--navy);color:#fff}
+  nav{position:sticky;top:0;background:rgba(15,27,45,.96);backdrop-filter:blur(6px);z-index:10}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:9px;color:#fff;font-weight:700;font-size:18px;letter-spacing:.2px}
+  .logo .mark{width:26px;height:26px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+  nav .links{display:flex;gap:26px;align-items:center}
+  nav .links a{color:#c7d2e0;font-size:14px}
+  nav .links a:hover{color:#fff}
+  .hero{background:linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;padding:70px 0 64px}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:rgba(47,109,246,.18);color:#9cc0ff;border:1px solid rgba(47,109,246,.35);font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;margin-bottom:22px}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:#5b8cff}
+  h1{font-size:44px;line-height:1.12;font-weight:800;letter-spacing:-.5px;max-width:18ch}
+  .hero p.sub{font-size:19px;color:#c2cee0;margin:18px 0 28px;max-width:60ch}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .hero .note{color:#8a9ab0;font-size:13px;margin-top:14px}
+  .strip{background:var(--navy2);border-top:1px solid rgba(255,255,255,.07);color:#fff;padding:22px 0}
+  .strip .wrap{display:flex;flex-wrap:wrap;gap:30px;justify-content:space-between}
+  .strip .stat .n{font-size:24px;font-weight:800}
+  .strip .stat .l{font-size:13px;color:#9fb0c6}
+  section.block{padding:64px 0}
+  h2{font-size:30px;font-weight:800;letter-spacing:-.3px;margin-bottom:8px}
+  .lead{color:var(--muted);font-size:17px;max-width:64ch;margin-bottom:34px}
+  .grid{display:grid;gap:18px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:1fr 1fr}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px}
+  .card .ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+  .card h3{font-size:17px;margin-bottom:6px}
+  .card p{color:var(--muted);font-size:14.5px}
+  .ic-red{background:#fdecec;color:var(--red)} .ic-green{background:#e6f6ee;color:var(--green)} .ic-blue{background:#e8f0fe;color:var(--blue)} .ic-amber{background:#fbf1e1;color:var(--amber)}
+  .steps{counter-reset:s;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;position:relative}
+  .step .num{counter-increment:s;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+  .step .num::before{content:counter(s)}
+  .step h4{font-size:15px;margin-bottom:4px} .step p{font-size:13.5px;color:var(--muted)}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .compare .col{padding:26px}
+  .compare .them{background:#fff} .compare .us{background:var(--navy);color:#fff}
+  .compare h3{font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .compare ul{list-style:none} .compare li{font-size:14.5px;padding:8px 0;display:flex;gap:10px}
+  .compare .them li{color:var(--muted)} .compare .us li{color:#d7e2f1}
+  .tick{flex:0 0 auto;font-weight:800} .us .tick{color:#56e09a} .them .tick{color:#9aa7b8}
+  .price{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .tier{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+  .tier.feat{border:2px solid var(--blue);position:relative}
+  .tier .badge{position:absolute;top:-12px;left:26px;background:var(--blue);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
+  .tier .name{font-size:14px;color:var(--muted);font-weight:600}
+  .tier .amt{font-size:34px;font-weight:800;margin:6px 0 2px}
+  .tier .amt span{font-size:15px;color:var(--muted);font-weight:600}
+  .tier ul{list-style:none;margin:16px 0 20px} .tier li{font-size:14px;padding:6px 0;color:var(--ink);display:flex;gap:9px}
+  .tier li .tick{color:var(--green)}
+  .insurer{background:linear-gradient(180deg,#10243a,#0f1b2d);color:#fff;border-radius:18px;padding:40px;display:flex;gap:30px;align-items:center;flex-wrap:wrap}
+  .insurer .t{flex:1;min-width:280px} .insurer h2{margin-bottom:10px} .insurer p{color:#c2cee0;font-size:16px}
+  footer{background:var(--navy);color:#9fb0c6;padding:40px 0;font-size:13px}
+  .disc{background:#0c1626;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px;color:#8a9ab0;font-size:12.5px;line-height:1.6;margin-bottom:24px}
+  @media(max-width:820px){.g3,.steps,.price{grid-template-columns:1fr 1fr}.g2,.compare{grid-template-columns:1fr}h1{font-size:34px}.steps{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <div class="logo"><span class="mark">&#10003;</span> TenderProof</div>
+  <div class="links">
+    <a href="#how">How it works</a>
+    <a href="#why">Why now</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#" class="btn btn-primary" style="padding:9px 16px;font-size:14px">Add to Chrome</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <span class="pill"><span class="dot"></span> U.S. Supreme Court, 9&#8211;0 &middot; Montgomery v. Caribe &middot; May 2026</span>
+  <h1>Brokers can now be sued for the carriers they pick.</h1>
+  <p class="sub">The Supreme Court just removed the shield that got these lawsuits dismissed. The new standard is &ldquo;ordinary care&rdquo; &mdash; and the law expects you to <b>document it</b>. TenderProof freezes a timestamped, court&#8209;ready record of the safety data you checked on every load.</p>
+  <div class="cta">
+    <a href="#" class="btn btn-primary">&#10003;&nbsp; Add to Chrome &mdash; free</a>
+    <a href="#" class="btn btn-ghost">Book a 15&#8209;min demo</a>
+  </div>
+  <div class="note">Works inside DAT, Truckstop &amp; your TMS &middot; no rip&#8209;and&#8209;replace &middot; install in 30 seconds</div>
+</div></header>
+
+<div class="strip"><div class="wrap">
+  <div class="stat"><div class="n">$36M</div><div class="l">median trucking &ldquo;nuclear verdict&rdquo;</div></div>
+  <div class="stat"><div class="n">~120,000</div><div class="l">U.S. freight brokers newly exposed</div></div>
+  <div class="stat"><div class="n">$75K</div><div class="l">bond is your only floor &mdash; it won&rsquo;t cover a tort judgment</div></div>
+  <div class="stat"><div class="n">1 click</div><div class="l">to a frozen defense file per load</div></div>
+</div></div>
+
+<section class="block" id="why"><div class="wrap">
+  <h2>The shield is gone. The paperwork is the new defense.</h2>
+  <p class="lead">In <i>Montgomery v. Caribe Transport</i>, the Court held 9&#8211;0 that state negligent&#8209;selection claims against brokers are no longer preempted. One crash involving a carrier you should have flagged can become a lawsuit you can&rsquo;t get dismissed &mdash; and your <i>lack of documentation</i> becomes the plaintiff&rsquo;s exhibit A.</p>
+  <div class="grid g3">
+    <div class="card"><div class="ic ic-red">&#9888;</div><h3>The exposure</h3><p>Negligent&#8209;selection suits proceed to discovery. Plaintiffs subpoena what you knew about the carrier the day you tendered.</p></div>
+    <div class="card"><div class="ic ic-green">&#128737;</div><h3>The defense</h3><p>A contemporaneous, tamper&#8209;evident record showing you applied a written carrier&#8209;selection policy &mdash; per load, timestamped.</p></div>
+    <div class="card"><div class="ic ic-blue">&#128178;</div><h3>The insurance angle</h3><p>E&amp;O and contingent&#8209;auto underwriters are repricing now. A documented process earns better rates; no process gets penalized.</p></div>
+  </div>
+</div></section>
+
+<section class="block" id="how" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap">
+  <h2>One button, in the flow you already work in</h2>
+  <p class="lead">TenderProof lives in your browser and overlays the load boards and TMS you use today. Before you tender, you check &mdash; and the record is frozen automatically.</p>
+  <div class="steps">
+    <div class="step"><div class="num"></div><h4>Add to Chrome</h4><p>Installs in 30 seconds. No new system to learn.</p></div>
+    <div class="step"><div class="num"></div><h4>Set your policy once</h4><p>Adopt a starting carrier&#8209;selection standard, or tune the thresholds.</p></div>
+    <div class="step"><div class="num"></div><h4>Check the carrier</h4><p>Live FMCSA authority, insurance &amp; safety data, scored against your policy.</p></div>
+    <div class="step"><div class="num"></div><h4>Freeze the file</h4><p>A timestamped, tamper&#8209;evident defense record &mdash; stored and exportable.</p></div>
+  </div>
+</div></section>
+
+<section class="block" id="why2"><div class="wrap">
+  <h2>A defense file &mdash; not just another carrier score</h2>
+  <p class="lead">Vetting tools tell you who to pick. TenderProof proves <i>you</i> picked carefully &mdash; the per&#8209;load, timestamped record discovery actually demands. It even captures the vetting tools you already use.</p>
+  <div class="compare">
+    <div class="col them">
+      <h3>&#128202; Carrier vetting / scores</h3>
+      <ul>
+        <li><span class="tick">&middot;</span> Rates the <b>carrier</b> at onboarding</li>
+        <li><span class="tick">&middot;</span> A score &mdash; doesn&rsquo;t prove what you knew the day you tendered</li>
+        <li><span class="tick">&middot;</span> No frozen, timestamped per&#8209;load evidence</li>
+        <li><span class="tick">&middot;</span> Vendor asserts safety &mdash; carries its own liability</li>
+      </ul>
+    </div>
+    <div class="col us">
+      <h3>&#128737; TenderProof</h3>
+      <ul>
+        <li><span class="tick">&#10003;</span> Records <b>your decision</b>, per load, at the moment of tender</li>
+        <li><span class="tick">&#10003;</span> Timestamped &amp; tamper&#8209;evident &mdash; court&#8209;ready</li>
+        <li><span class="tick">&#10003;</span> Applies <b>your</b> written policy; logs red&#8209;flag overrides</li>
+        <li><span class="tick">&#10003;</span> Neutral record &mdash; we never &ldquo;approve&rdquo; a carrier for you</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="block" style="background:#fff;border-top:1px solid var(--line)"><div class="wrap">
+  <div class="insurer">
+    <div class="t">
+      <h2>For insurers &amp; agencies</h2>
+      <p>Mandate or discount TenderProof across your book of brokers. Every insured generates a standardized, auditable defense file &mdash; reducing claim severity and giving you a defensible discovery artifact at renewal. We co&#8209;brand and distribute; your brokers get a credit, not a bill.</p>
+    </div>
+    <a href="#" class="btn btn-primary">Partner with us</a>
+  </div>
+</div></section>
+
+<section class="block" id="pricing"><div class="wrap">
+  <h2>Pricing</h2>
+  <p class="lead">Free 14&#8209;day trial. Cancel anytime. Design&#8209;partner pricing available for early brokerages.</p>
+  <div class="price">
+    <div class="tier"><div class="name">Solo / small</div><div class="amt">$149<span>/mo</span></div><ul><li><span class="tick">&#10003;</span> Up to 3 seats</li><li><span class="tick">&#10003;</span> Unlimited defense files</li><li><span class="tick">&#10003;</span> Default policy template</li><li><span class="tick">&#10003;</span> PDF export</li></ul><a href="#" class="btn btn-dark" style="width:100%;justify-content:center">Start free</a></div>
+    <div class="tier feat"><div class="badge">Most popular</div><div class="name">Brokerage</div><div class="amt">$699<span>/mo</span></div><ul><li><span class="tick">&#10003;</span> Up to 25 seats</li><li><span class="tick">&#10003;</span> Custom carrier policy + overrides</li><li><span class="tick">&#10003;</span> Insurer&#8209;ready audit packet</li><li><span class="tick">&#10003;</span> Team roles &amp; reporting</li></ul><a href="#" class="btn btn-primary" style="width:100%;justify-content:center">Start free</a></div>
+    <div class="tier"><div class="name">Insurer / enterprise</div><div class="amt">Custom</div><ul><li><span class="tick">&#10003;</span> Book&#8209;wide deployment</li><li><span class="tick">&#10003;</span> Co&#8209;branding</li><li><span class="tick">&#10003;</span> Portfolio risk reporting</li><li><span class="tick">&#10003;</span> API + SSO</li></ul><a href="#" class="btn btn-dark" style="width:100%;justify-content:center">Talk to us</a></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="disc">
+    <b style="color:#c7d2e0">Important.</b> TenderProof is a recordkeeping tool &mdash; not a safety&#8209;rating, certification, or carrier&#8209;approval service, and not a law firm. We do not vet, endorse, or warrant any motor carrier, and we do not represent that any carrier is safe or suitable for any load. TenderProof records the data you reviewed and the selection decisions you make, applying criteria you adopt and control, as of the timestamps shown. Carrier data is sourced from FMCSA and third parties &ldquo;as is.&rdquo; All carrier&#8209;selection decisions are made solely by you. Nothing here is legal advice. Use of TenderProof does not guarantee any litigation, insurance, or regulatory outcome. <i>(Concept prototype &mdash; Casting Karma LLC.)</i>
+  </div>
+  <div class="logo" style="font-size:16px;margin-bottom:8px"><span class="mark">&#10003;</span> TenderProof</div>
+  &copy; 2026 Casting Karma LLC &middot; Built with input from transportation&#8209;defense counsel.
+</div></footer>
+
+</body>
+</html>

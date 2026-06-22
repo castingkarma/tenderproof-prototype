@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TenderProof — extension prototype</title>
+<style>
+  :root{--navy:#0f1b2d;--ink:#1a2433;--muted:#5b6b80;--line:#e4e9f0;--bg:#eef2f7;--white:#fff;--blue:#2f6df6;--blue-d:#1d4fc4;--green:#139a5b;--green-bg:#e6f6ee;--amber:#c77d12;--amber-bg:#fbf1e1;--red:#d23f3f;--red-bg:#fdecec}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:24px}
+  .page{max-width:980px;margin:0 auto}
+  .head{text-align:center;margin-bottom:18px}
+  .head h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .head p{color:var(--muted);font-size:14px;margin-top:4px}
+  .tabs{display:flex;gap:8px;justify-content:center;margin:16px 0 22px;flex-wrap:wrap}
+  .tab{font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer}
+  .tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .stage{display:none}
+  .stage.on{display:block}
+  /* faux browser */
+  .browser{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(15,27,45,.07)}
+  .bbar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f1f4f9;border-bottom:1px solid var(--line)}
+  .dot{width:11px;height:11px;border-radius:50%}.d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .url{flex:1;background:#fff;border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--muted);padding:6px 12px;margin-left:8px}
+  .ext-ico{width:26px;height:26px;border-radius:7px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .board{display:flex;min-height:420px}
+  .board .main{flex:1;padding:18px;background:#fafbfd}
+  .loadrow{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px 14px;margin-bottom:10px}
+  .loadrow .lane{font-weight:700;font-size:14px}.loadrow .meta{font-size:12px;color:var(--muted)}
+  .carrierbox{border:1px dashed #c7d2e2;border-radius:10px;background:#fff;padding:14px;margin-top:6px}
+  .panel{width:340px;border-left:1px solid var(--line);background:#fff;padding:16px}
+  .panel .ptop{display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:12px}
+  .panel .ptop b{font-size:14px}
+  .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .cname{font-size:16px;font-weight:700;margin:2px 0}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;font-size:14px;font-weight:600;padding:11px;border-radius:9px;border:none;cursor:pointer}
+  .btn-b{background:var(--blue);color:#fff}.btn-b:hover{background:var(--blue-d)}
+  .btn-g{background:var(--navy);color:#fff}
+  .verdict{margin-top:14px}
+  .vbar{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:9px;font-weight:700;font-size:13.5px;margin-bottom:12px}
+  .v-pass{background:var(--green-bg);color:var(--green)}
+  .row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid #f0f3f8}
+  .row .k{color:var(--muted)} .ok{color:var(--green);font-weight:600}.warnc{color:var(--amber);font-weight:600}
+  .saved{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;display:flex;gap:10px;align-items:flex-start}
+  .saved .ic{width:34px;height:34px;border-radius:8px;background:#e8f0fe;color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto}
+  .hint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:12px}
+  /* onboarding */
+  .ob{max-width:420px;margin:0 auto}
+  .pop{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 36px rgba(15,27,45,.12);overflow:hidden}
+  .pop .top{background:var(--navy);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:9px}
+  .pop .top b{font-size:15px}
+  .pop .body{padding:20px}
+  .prog{display:flex;gap:6px;margin-bottom:18px}
+  .prog span{flex:1;height:5px;border-radius:3px;background:var(--line)}
+  .prog span.on{background:var(--green)}
+  .ob h3{font-size:18px;margin-bottom:6px}.ob p.d{color:var(--muted);font-size:14px;margin-bottom:16px}
+  .opt{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:9px;cursor:pointer;font-size:14px}
+  .opt:hover{border-color:var(--blue)}
+  .opt .chk{width:18px;height:18px;border-radius:5px;border:2px solid var(--green);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:12px}
+  .field{border:1px solid var(--line);border-radius:9px;padding:11px 12px;font-size:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  .field input[type=number]{border:1px solid var(--line);border-radius:7px;padding:5px 8px;width:90px;font-size:13px}
+  .toggle{width:38px;height:22px;border-radius:999px;background:var(--green);position:relative}
+  .toggle::after{content:"";position:absolute;right:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff}
+  .consent{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;color:var(--muted);margin-bottom:14px;display:flex;gap:9px}
+  .consent .box{width:18px;height:18px;border:2px solid var(--blue);border-radius:4px;color:var(--blue);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:12px}
+  .done{text-align:center;padding:14px 0}
+  .done .big{width:60px;height:60px;border-radius:50%;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px}
+  /* dashboard */
+  .dash{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .dash .dtop{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .dash .body{padding:18px}
+  .mcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  .mc{background:#f7f9fc;border-radius:10px;padding:14px}.mc .l{font-size:12px;color:var(--muted)}.mc .n{font-size:23px;font-weight:800}
+  .drow{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:7px}
+  .drow .s{font-size:14px}.drow .m{font-size:12px;color:var(--muted)}
+  .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}.b-ok{background:var(--green-bg);color:var(--green)}.b-no{background:var(--red-bg);color:var(--red)}
+  @media(max-width:760px){.board{flex-direction:column}.panel{width:auto;border-left:none;border-top:1px solid var(--line)}.mcards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="head">
+    <h1>TenderProof &mdash; product prototype</h1>
+    <p>Click through the three pieces. This is a clickable concept mockup, not the live product.</p>
+  </div>
+  <div class="tabs">
+    <div class="tab on" data-s="ob">1 &middot; Onboarding</div>
+    <div class="tab" data-s="ext">2 &middot; The extension in action</div>
+    <div class="tab" data-s="dash">3 &middot; Web dashboard</div>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div class="stage on" id="stage-ob">
+    <div class="ob"><div class="pop">
+      <div class="top"><span class="ext-ico">&#10003;</span><b>TenderProof</b><span style="margin-left:auto;font-size:12px;color:#9fb0c6">setup</span></div>
+      <div class="body">
+        <div class="prog"><span class="on" id="p1"></span><span id="p2"></span><span id="p3"></span><span id="p4"></span></div>
+
+        <div id="ob1">
+          <h3>Welcome &mdash; let&rsquo;s get you Montgomery-ready</h3>
+          <p class="d">Two minutes. First, connect TenderProof to FMCSA so we can pull live carrier data.</p>
+          <div class="opt"><span class="chk">&#10003;</span> Connect FMCSA data (authority, insurance, safety)</div>
+          <div class="opt"><span class="chk">&#10003;</span> Detect carriers on DAT &amp; Truckstop</div>
+          <button class="btn btn-b" onclick="ob(2)">Continue</button>
+        </div>
+
+        <div id="ob2" style="display:none">
+          <h3>Set your carrier-selection policy</h3>
+          <p class="d">We&rsquo;ve loaded a sensible default built with transportation-defense counsel. Adjust the thresholds to make it <i>your</i> written standard.</p>
+          <div class="field"><span>Active operating authority required</span><span class="toggle"></span></div>
+          <div class="field"><span>Min. auto-liability insurance</span><span>$<input type="number" value="1000000" step="250000"></span></div>
+          <div class="field"><span>Block &ldquo;Unsatisfactory&rdquo; safety rating</span><span class="toggle"></span></div>
+          <div class="field"><span>Flag &ldquo;Conditional&rdquo; for manual review</span><span class="toggle"></span></div>
+          <button class="btn btn-b" onclick="ob(3)">Save policy</button>
+        </div>
+
+        <div id="ob3" style="display:none">
+          <h3>One quick acknowledgment</h3>
+          <p class="d">This keeps you (and us) on the right side of the line.</p>
+          <div class="consent"><span class="box">&#10003;</span><span>I understand TenderProof <b>records my diligence</b> &mdash; it does not approve carriers or provide legal advice. All selection decisions are mine.</span></div>
+          <button class="btn btn-b" onclick="ob(4)">Finish setup</button>
+        </div>
+
+        <div id="ob4" style="display:none">
+          <div class="done">
+            <div class="big">&#10003;</div>
+            <h3>You&rsquo;re set</h3>
+            <p class="d">TenderProof is now watching your load boards. Open a load and check your first carrier.</p>
+            <button class="btn btn-g" onclick="go('ext')">See it in action &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="hint">Step through the real setup flow &mdash; connect, set policy, acknowledge, done.</div>
+  </div>
+
+  <!-- EXTENSION IN ACTION -->
+  <div class="stage" id="stage-ext">
+    <div class="browser">
+      <div class="bbar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">one.dat.com &middot; Load #48202 &middot; assign carrier</span><span class="ext-ico" title="TenderProof">&#10003;</span></div>
+      <div class="board">
+        <div class="main">
+          <div class="loadrow"><div style="flex:1"><div class="lane">Dallas, TX &rarr; Atlanta, GA</div><div class="meta">Load #48202 &middot; Dry van &middot; 42,000 lbs &middot; pickup Jun 23</div></div></div>
+          <div class="lbl" style="margin:14px 0 4px">Carrier you&rsquo;re about to tender</div>
+          <div class="carrierbox">
+            <div style="font-weight:700;font-size:15px">Sunrise Logistics LLC</div>
+            <div class="meta">MC-784221 &middot; USDOT 3920114 &middot; offered $2,250</div>
+          </div>
+          <div class="hint" style="text-align:left;margin-top:14px">&rarr; The TenderProof panel appears on the right whenever a carrier is in view. Use the blue buttons.</div>
+        </div>
+        <div class="panel">
+          <div class="ptop"><span class="ext-ico">&#10003;</span><b>TenderProof</b><span style="margin-left:auto;font-size:11px;color:var(--muted)">on this load</span></div>
+          <div class="lbl">Carrier</div>
+          <div class="cname">Sunrise Logistics LLC</div>
+          <div class="meta" style="font-size:12px;color:var(--muted);margin-bottom:14px">MC-784221 &middot; DOT 3920114</div>
+          <button class="btn btn-b" id="checkBtn" onclick="doCheck()">&#128269;&nbsp; Check &amp; document carrier</button>
+
+          <div class="verdict" id="verdict" style="display:none">
+            <div class="vbar v-pass">&#10003;&nbsp; Meets your carrier policy</div>
+            <div class="lbl" style="margin-bottom:4px">FMCSA snapshot &middot; just now</div>
+            <div class="row"><span class="k">Operating authority</span><span class="ok">Active</span></div>
+            <div class="row"><span class="k">Insurance on file</span><span class="ok">$1M &middot; current</span></div>
+            <div class="row"><span class="k">Safety rating</span><span class="ok">Satisfactory</span></div>
+            <div class="row"><span class="k">Out-of-service rate</span><span class="ok">Below avg</span></div>
+            <div class="row"><span class="k">Identity / MC match</span><span class="ok">Verified</span></div>
+            <button class="btn btn-b" id="freezeBtn" style="margin-top:14px" onclick="doFreeze()">&#128274;&nbsp; Freeze defense file</button>
+          </div>
+
+          <div class="saved" id="saved" style="display:none">
+            <div class="ic">&#128196;</div>
+            <div><div style="font-weight:700;font-size:13.5px">Defense file frozen</div><div class="meta">TP-48202 &middot; Jun 21 2026, 10:42:07 UTC<br>SHA-256 + trusted timestamp &middot; tamper-evident</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hint">Click <b>Check &amp; document carrier</b>, then <b>Freeze defense file</b> &mdash; that&rsquo;s the whole per-load workflow.</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="stage" id="stage-dash">
+    <div class="dash">
+      <div class="dtop"><div style="display:flex;align-items:center;gap:9px"><span class="ext-ico">&#10003;</span><b>TenderProof</b> <span style="color:var(--muted);font-size:13px">&middot; Apex Freight Brokerage</span></div><button class="btn btn-g" style="width:auto;padding:8px 14px">&#11015; Export packet for insurer</button></div>
+      <div class="body">
+        <div class="mcards">
+          <div class="mc"><div class="l">Loads documented (Jun)</div><div class="n">1,284</div></div>
+          <div class="mc"><div class="l">Coverage</div><div class="n" style="color:var(--green)">100%</div></div>
+          <div class="mc"><div class="l">Carriers flagged &amp; declined</div><div class="n" style="color:var(--amber)">23</div></div>
+        </div>
+        <div class="lbl" style="margin-bottom:8px">Recent loads</div>
+        <div class="drow"><span style="color:var(--green);font-size:18px">&#10003;</span><div style="flex:1"><div class="s">Load #48202 &mdash; Sunrise Logistics LLC</div><div class="m">Documented &middot; Jun 21, 10:42a &middot; record frozen (TP-48202)</div></div><span class="badge b-ok">Defended</span></div>
+        <div class="drow"><span style="color:var(--green);font-size:18px">&#10003;</span><div style="flex:1"><div class="s">Load #48201 &mdash; Patriot Carriers Inc</div><div class="m">Documented &middot; Jun 21, 9:14a &middot; record frozen</div></div><span class="badge b-ok">Defended</span></div>
+        <div class="drow"><span style="color:var(--red);font-size:18px">&#9888;</span><div style="flex:1"><div class="s">Load #48199 &mdash; Redline Transport</div><div class="m">Authority revoked &middot; flagged &amp; declined before tender</div></div><span class="badge b-no">Declined</span></div>
+        <div class="drow"><span style="color:var(--amber);font-size:18px">&#9888;</span><div style="flex:1"><div class="s">Load #48188 &mdash; Hauler Bros LLC</div><div class="m">Conditional rating &middot; override approved by J. Austin &middot; reason logged</div></div><span class="badge b-ok">Override logged</span></div>
+      </div>
+    </div>
+    <div class="hint">Every load rolls up here &mdash; and exports as one audit packet for your insurer or defense counsel.</div>
+  </div>
+</div>
+
+<script>
+function go(s){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('on',t.dataset.s===s)});
+  document.querySelectorAll('.stage').forEach(function(st){st.classList.toggle('on',st.id==='stage-'+s)});
+}
+document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){go(t.dataset.s)})});
+function ob(n){
+  [1,2,3,4].forEach(function(i){document.getElementById('ob'+i).style.display=(i===n?'block':'none');document.getElementById('p'+i).classList.toggle('on',i<=n)});
+}
+function doCheck(){document.getElementById('verdict').style.display='block';document.getElementById('checkBtn').style.display='none'}
+function doFreeze(){var b=document.getElementById('freezeBtn');document.getElementById('saved').style.display='flex';b.disabled=true;b.style.opacity=.6;b.innerHTML='&#10003;&nbsp; Saved to vault'}
+</script>
+</body>
+</html>
