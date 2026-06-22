@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TenderProof — prove you picked carefully, on every load</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27116%27%20fill%3D%27%2313233a%27%2F%3E%3Cpath%20d%3D%27M256%20104%20L380%20150%20V268%20C380%20338%20326%20388%20256%20414%20C186%20388%20132%20338%20132%20268%20V150%20Z%27%20fill%3D%27%23f3f6fa%27%2F%3E%3Cpath%20d%3D%27M199%20262%20L241%20304%20L325%20212%27%20fill%3D%27none%27%20stroke%3D%27%2312a85d%27%20stroke-width%3D%2734%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E">
 <style>
   :root{
     --navy:#0f1b2d; --navy2:#16263d; --ink:#1a2433; --muted:#5b6b80; --line:#e4e9f0;
     --bg:#f7f9fc; --white:#ffffff; --blue:#2f6df6; --blue-d:#1d4fc4; --green:#139a5b; --amber:#c77d12; --red:#d23f3f;
+    --tp-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27116%27%20fill%3D%27%2313233a%27%2F%3E%3Cpath%20d%3D%27M256%20104%20L380%20150%20V268%20C380%20338%20326%20388%20256%20414%20C186%20388%20132%20338%20132%20268%20V150%20Z%27%20fill%3D%27%23f3f6fa%27%2F%3E%3Cpath%20d%3D%27M256%20414%20C326%20388%20380%20338%20380%20268%20V150%20L256%20104%20L132%20150%20V268%20C132%20338%20186%20388%20256%20414%20Z%27%20fill%3D%27none%27%20stroke%3D%27%23c79a3a%27%20stroke-width%3D%277%27%20stroke-opacity%3D%270.6%27%2F%3E%3Cpath%20d%3D%27M199%20262%20L241%20304%20L325%20212%27%20fill%3D%27none%27%20stroke%3D%27%2312a85d%27%20stroke-width%3D%2734%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E");
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -20,8 +22,9 @@
   .btn-dark{background:var(--navy);color:#fff}
   nav{position:sticky;top:0;background:rgba(15,27,45,.96);backdrop-filter:blur(6px);z-index:10}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-  .logo{display:flex;align-items:center;gap:9px;color:#fff;font-weight:700;font-size:18px;letter-spacing:.2px}
-  .logo .mark{width:26px;height:26px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+  .logo{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:18px;letter-spacing:.2px}
+  .logo .mark{width:30px;height:30px;background:var(--tp-icon) center/contain no-repeat;font-size:0;flex:0 0 auto}
+  .logo .tld{opacity:.5;font-weight:600}
   nav .links{display:flex;gap:26px;align-items:center}
   nav .links a{color:#c7d2e0;font-size:14px}
   nav .links a:hover{color:#fff}
@@ -78,7 +81,7 @@
 <body>
 
 <nav><div class="wrap">
-  <div class="logo"><span class="mark">&#10003;</span> TenderProof</div>
+  <div class="logo"><span class="mark"></span> TenderProof<span class="tld">.io</span></div>
   <div class="links">
     <a href="#how">How it works</a>
     <a href="#why">Why now</a>
@@ -175,8 +178,8 @@
   <div class="disc">
     <b style="color:#c7d2e0">Important.</b> TenderProof is a recordkeeping tool &mdash; not a safety&#8209;rating, certification, or carrier&#8209;approval service, and not a law firm. We do not vet, endorse, or warrant any motor carrier, and we do not represent that any carrier is safe or suitable for any load. TenderProof records the data you reviewed and the selection decisions you make, applying criteria you adopt and control, as of the timestamps shown. Carrier data is sourced from FMCSA and third parties &ldquo;as is.&rdquo; All carrier&#8209;selection decisions are made solely by you. Nothing here is legal advice. Use of TenderProof does not guarantee any litigation, insurance, or regulatory outcome. <i>(Concept prototype &mdash; Casting Karma LLC.)</i>
   </div>
-  <div class="logo" style="font-size:16px;margin-bottom:8px"><span class="mark">&#10003;</span> TenderProof</div>
-  &copy; 2026 Casting Karma LLC &middot; Built with input from transportation&#8209;defense counsel.
+  <div class="logo" style="font-size:16px;margin-bottom:8px"><span class="mark"></span> TenderProof<span class="tld">.io</span></div>
+  tenderproof.io &middot; &copy; 2026 Casting Karma LLC &middot; Built with input from transportation&#8209;defense counsel.
 </div></footer>
 
 </body>

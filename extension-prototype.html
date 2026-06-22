@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TenderProof — extension prototype</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27116%27%20fill%3D%27%2313233a%27%2F%3E%3Cpath%20d%3D%27M256%20104%20L380%20150%20V268%20C380%20338%20326%20388%20256%20414%20C186%20388%20132%20338%20132%20268%20V150%20Z%27%20fill%3D%27%23f3f6fa%27%2F%3E%3Cpath%20d%3D%27M199%20262%20L241%20304%20L325%20212%27%20fill%3D%27none%27%20stroke%3D%27%2312a85d%27%20stroke-width%3D%2734%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E">
 <style>
-  :root{--navy:#0f1b2d;--ink:#1a2433;--muted:#5b6b80;--line:#e4e9f0;--bg:#eef2f7;--white:#fff;--blue:#2f6df6;--blue-d:#1d4fc4;--green:#139a5b;--green-bg:#e6f6ee;--amber:#c77d12;--amber-bg:#fbf1e1;--red:#d23f3f;--red-bg:#fdecec}
+  :root{--navy:#0f1b2d;--ink:#1a2433;--muted:#5b6b80;--line:#e4e9f0;--bg:#eef2f7;--white:#fff;--blue:#2f6df6;--blue-d:#1d4fc4;--green:#139a5b;--green-bg:#e6f6ee;--amber:#c77d12;--amber-bg:#fbf1e1;--red:#d23f3f;--red-bg:#fdecec;
+  --tp-icon:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27116%27%20fill%3D%27%2313233a%27%2F%3E%3Cpath%20d%3D%27M256%20104%20L380%20150%20V268%20C380%20338%20326%20388%20256%20414%20C186%20388%20132%20338%20132%20268%20V150%20Z%27%20fill%3D%27%23f3f6fa%27%2F%3E%3Cpath%20d%3D%27M256%20414%20C326%20388%20380%20338%20380%20268%20V150%20L256%20104%20L132%20150%20V268%20C132%20338%20186%20388%20256%20414%20Z%27%20fill%3D%27none%27%20stroke%3D%27%23c79a3a%27%20stroke-width%3D%277%27%20stroke-opacity%3D%270.6%27%2F%3E%3Cpath%20d%3D%27M199%20262%20L241%20304%20L325%20212%27%20fill%3D%27none%27%20stroke%3D%27%2312a85d%27%20stroke-width%3D%2734%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E")}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;padding:24px}
   .page{max-width:980px;margin:0 auto}
@@ -22,7 +24,7 @@
   .bbar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f1f4f9;border-bottom:1px solid var(--line)}
   .dot{width:11px;height:11px;border-radius:50%}.d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
   .url{flex:1;background:#fff;border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--muted);padding:6px 12px;margin-left:8px}
-  .ext-ico{width:26px;height:26px;border-radius:7px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .ext-ico{width:26px;height:26px;background:var(--tp-icon) center/contain no-repeat;font-size:0;flex:0 0 auto}
   .board{display:flex;min-height:420px}
   .board .main{flex:1;padding:18px;background:#fafbfd}
   .loadrow{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px 14px;margin-bottom:10px}
@@ -80,7 +82,7 @@
 <body>
 <div class="page">
   <div class="head">
-    <h1>TenderProof &mdash; product prototype</h1>
+    <h1>TenderProof.io &mdash; product prototype</h1>
     <p>Click through the three pieces. This is a clickable concept mockup, not the live product.</p>
   </div>
   <div class="tabs">
@@ -92,7 +94,7 @@
   <!-- ONBOARDING -->
   <div class="stage on" id="stage-ob">
     <div class="ob"><div class="pop">
-      <div class="top"><span class="ext-ico">&#10003;</span><b>TenderProof</b><span style="margin-left:auto;font-size:12px;color:#9fb0c6">setup</span></div>
+      <div class="top"><span class="ext-ico">&#10003;</span><b>TenderProof<span style="opacity:.55;font-weight:600">.io</span></b><span style="margin-left:auto;font-size:12px;color:#9fb0c6">setup</span></div>
       <div class="body">
         <div class="prog"><span class="on" id="p1"></span><span id="p2"></span><span id="p3"></span><span id="p4"></span></div>
 
@@ -149,7 +151,7 @@
           <div class="hint" style="text-align:left;margin-top:14px">&rarr; The TenderProof panel appears on the right whenever a carrier is in view. Use the blue buttons.</div>
         </div>
         <div class="panel">
-          <div class="ptop"><span class="ext-ico">&#10003;</span><b>TenderProof</b><span style="margin-left:auto;font-size:11px;color:var(--muted)">on this load</span></div>
+          <div class="ptop"><span class="ext-ico">&#10003;</span><b>TenderProof<span style="opacity:.55;font-weight:600">.io</span></b><span style="margin-left:auto;font-size:11px;color:var(--muted)">on this load</span></div>
           <div class="lbl">Carrier</div>
           <div class="cname">Sunrise Logistics LLC</div>
           <div class="meta" style="font-size:12px;color:var(--muted);margin-bottom:14px">MC-784221 &middot; DOT 3920114</div>
@@ -179,7 +181,7 @@
   <!-- DASHBOARD -->
   <div class="stage" id="stage-dash">
     <div class="dash">
-      <div class="dtop"><div style="display:flex;align-items:center;gap:9px"><span class="ext-ico">&#10003;</span><b>TenderProof</b> <span style="color:var(--muted);font-size:13px">&middot; Apex Freight Brokerage</span></div><button class="btn btn-g" style="width:auto;padding:8px 14px">&#11015; Export packet for insurer</button></div>
+      <div class="dtop"><div style="display:flex;align-items:center;gap:9px"><span class="ext-ico">&#10003;</span><b>TenderProof<span style="opacity:.55;font-weight:600">.io</span></b> <span style="color:var(--muted);font-size:13px">&middot; Apex Freight Brokerage</span></div><button class="btn btn-g" style="width:auto;padding:8px 14px">&#11015; Export packet for insurer</button></div>
       <div class="body">
         <div class="mcards">
           <div class="mc"><div class="l">Loads documented (Jun)</div><div class="n">1,284</div></div>
