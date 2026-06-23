@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TenderProof — app</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27116%27%20fill%3D%27%2313233a%27%2F%3E%3Cpath%20d%3D%27M256%20104%20L380%20150%20V268%20C380%20338%20326%20388%20256%20414%20C186%20388%20132%20338%20132%20268%20V150%20Z%27%20fill%3D%27%23f3f6fa%27%2F%3E%3Cpath%20d%3D%27M199%20262%20L241%20304%20L325%20212%27%20fill%3D%27none%27%20stroke%3D%27%2312a85d%27%20stroke-width%3D%2734%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.2.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0f1b2d;--navy2:#16263d;--ink:#16202e;--muted:#5f6e82;--faint:#8b97a8;
+  --line:#e7e9ef;--bg:#f4f6f9;--card:#fff;
+  --green:#0f8f4d;--green2:#0c7a41;--green-bg:#e7f6ee;
+  --gold:#bf8f33;--amber:#a96d12;--amber-bg:#fbf0d9;
+  --red:#c33b3b;--red-bg:#fbe9e9;--slate:#5b6b80;--slate-bg:#eef1f5;
+  --shadow:0 1px 2px rgba(16,27,45,.04),0 4px 16px rgba(16,27,45,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+.app{display:flex;min-height:100vh}
+/* sidebar */
+.side{width:236px;background:var(--navy);color:#c7d2e0;display:flex;flex-direction:column;flex:0 0 236px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:20px 20px 18px;color:#fff;font-weight:700;font-size:17px;letter-spacing:.2px}
+.brand .mk{width:30px;height:30px;flex:0 0 30px}
+.brand .tld{opacity:.5;font-weight:600}
+.nav{padding:6px 12px;display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;color:#aebacb;font-weight:500;font-size:13.5px;cursor:pointer}
+.nav a i{font-size:18px}
+.nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav a.on{background:var(--green);color:#fff}
+.nav .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#6b7a8f;padding:16px 12px 6px;font-weight:600}
+.side .who{margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.side .who .av{width:32px;height:32px;border-radius:8px;background:#26405c;color:#cfe0f2;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.side .who .nm{font-size:12.5px;color:#dde6f1;font-weight:600}.side .who .org{font-size:11px;color:#8b97a8}
+/* main */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{height:60px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:5}
+.top h1{font-size:18px;font-weight:700;letter-spacing:-.2px}
+.top .sub{font-size:12.5px;color:var(--muted);font-weight:500}
+.content{padding:26px 28px 60px;max-width:1080px;width:100%}
+.view{display:none}.view.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-size:13.5px;font-weight:600;padding:10px 16px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:.12s}
+.btn i{font-size:17px}
+.btn-pri{background:var(--green);color:#fff}.btn-pri:hover{background:var(--green2)}
+.btn-nav{background:var(--navy);color:#fff}.btn-nav:hover{background:var(--navy2)}
+.btn-out{background:#fff;color:var(--ink);border-color:var(--line)}.btn-out:hover{border-color:#cfd5df;background:#fafbfc}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+/* cards + tiles */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px 18px;box-shadow:var(--shadow)}
+.tile .l{font-size:12px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:6px}
+.tile .n{font-size:27px;font-weight:800;letter-spacing:-.5px;margin-top:7px}
+.tile .n small{font-size:13px;font-weight:600;color:var(--faint)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.card .hd{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.card .hd h2{font-size:15px;font-weight:700}.card .hd .mt{font-size:12px;color:var(--muted)}
+.card .bd{padding:6px 8px}
+/* table */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--faint);font-weight:700;padding:10px 12px}
+td{padding:12px;border-top:1px solid var(--line);font-size:13.5px;vertical-align:middle}
+tr.rrow{cursor:pointer}tr.rrow:hover td{background:#fafbfc}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+/* badges */
+.bdg{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.b-green{background:var(--green-bg);color:var(--green2)}
+.b-amber{background:var(--amber-bg);color:var(--amber)}
+.b-red{background:var(--red-bg);color:var(--red)}
+.b-slate{background:var(--slate-bg);color:var(--slate)}
+.b-gold{background:#f6efdd;color:var(--gold)}
+/* new check */
+.steps{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.stp{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--faint);font-weight:600}
+.stp .dot{width:22px;height:22px;border-radius:50%;background:#e7eaf0;color:var(--faint);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.stp.on{color:var(--ink)}.stp.on .dot{background:var(--navy);color:#fff}
+.stp.done .dot{background:var(--green);color:#fff}
+.stp .sep{width:18px;height:1px;background:var(--line)}
+.lookup{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input.f,select.f,textarea.f{font-family:inherit;font-size:14px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:none;width:100%}
+input.f:focus,textarea.f:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(15,143,77,.12)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:7px}
+.chip:hover{border-color:var(--green);color:var(--ink)}
+.chip .d{width:8px;height:8px;border-radius:50%}
+.snap{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:4px}
+.snap .row{padding:13px 16px;border-bottom:1px solid var(--line)}
+.snap .row:nth-child(odd){border-right:1px solid var(--line)}
+.snap .k{font-size:11.5px;color:var(--faint);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.snap .v{font-size:15px;font-weight:700;margin-top:3px}
+.snap .src{font-size:11px;color:var(--faint);margin-top:2px}
+.verdict{border-radius:13px;padding:18px 20px;margin:4px 0 18px;display:flex;align-items:center;gap:14px}
+.verdict .ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:23px;flex:0 0 42px}
+.verdict .t{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.verdict .s{font-size:12.5px;font-weight:500;opacity:.85;margin-top:2px}
+.v-meets{background:var(--green-bg)}.v-meets .ic{background:var(--green);color:#fff}.v-meets .t{color:var(--green2)}
+.v-flag{background:var(--amber-bg)}.v-flag .ic{background:var(--amber);color:#fff}.v-flag .t{color:var(--amber)}
+.v-fail{background:var(--red-bg)}.v-fail .ic{background:var(--red);color:#fff}.v-fail .t{color:var(--red)}
+.v-incon{background:var(--slate-bg)}.v-incon .ic{background:var(--slate);color:#fff}.v-incon .t{color:var(--slate)}
+.rules{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.rule{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line);font-size:13.5px}
+.rule:last-child{border-bottom:none}
+.rule .ri{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 22px}
+.ri-pass{background:var(--green-bg);color:var(--green2)}.ri-flag{background:var(--amber-bg);color:var(--amber)}.ri-fail{background:var(--red-bg);color:var(--red)}.ri-unk{background:var(--slate-bg);color:var(--slate)}
+.rule .rl{flex:1}.rule .rt{font-size:11.5px;color:var(--faint);font-weight:600}
+.ovr{background:var(--amber-bg);border:1px solid #ecd9a8;border-radius:12px;padding:16px 18px;margin:16px 0}
+.ovr h3{font-size:13.5px;color:var(--amber);font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ovr p{font-size:12.5px;color:#8a6d2a;margin-bottom:12px}
+.freeze-box{text-align:center;padding:30px 20px}
+.seal{background:#0e1b2d;border-radius:13px;padding:20px;color:#aebccf;margin-top:4px}
+.seal .sr{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px}
+.seal .sr:last-child{border-bottom:none}.seal .sk{color:#7b8aa0;font-weight:600}.seal .sv{font-family:ui-monospace,monospace;color:#d6e0ec;text-align:right;word-break:break-all}
+/* defense doc */
+.doc{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.doc .dh{background:var(--navy);color:#fff;padding:22px 26px}
+.doc .dh .lg{display:flex;align-items:center;gap:11px;font-weight:700;font-size:16px}
+.doc .dh h2{font-size:19px;font-weight:800;margin-top:12px;letter-spacing:-.3px}
+.doc .dh p{font-size:12px;color:#9fb0c6;margin-top:4px}
+.doc .db{padding:22px 26px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.kv div{padding:11px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.kv div:nth-child(odd){border-right:1px solid var(--line);background:#fafbfc}
+.kv .kk{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.3px;font-weight:600}
+.sec-t{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:700;margin:18px 0 10px}
+.disc{font-size:11px;color:var(--faint);line-height:1.6;border-top:1px solid var(--line);padding-top:14px;margin-top:18px}
+/* policy */
+.psetting{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.psetting:last-child{border-bottom:none}
+.psetting .pn{font-size:13.5px;font-weight:600}.psetting .pd{font-size:12px;color:var(--muted);margin-top:2px}
+.toggle{width:42px;height:24px;border-radius:999px;background:var(--green);position:relative;cursor:pointer;flex:0 0 42px}
+.toggle::after{content:"";position:absolute;right:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}
+.toggle.off{background:#cfd5df}.toggle.off::after{right:21px}
+.foot{font-size:11px;color:var(--faint);text-align:center;padding:26px 20px 0;line-height:1.6;max-width:680px;margin:0 auto}
+/* onboarding */
+.ob-wrap{position:fixed;inset:0;background:rgba(12,20,33,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.ob{background:#fff;border-radius:18px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3)}
+.ob .obh{background:var(--navy);color:#fff;padding:24px 26px}
+.ob .obh .lg{display:flex;align-items:center;gap:11px;font-weight:700;font-size:17px}
+.ob .obh h2{font-size:19px;margin-top:14px;font-weight:800}
+.ob .obh p{font-size:13px;color:#9fb0c6;margin-top:5px}
+.ob .obb{padding:22px 26px}
+.ack{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.ack:last-of-type{border-bottom:none}
+.ack .bx{width:22px;height:22px;border-radius:6px;border:2px solid #cfd5df;flex:0 0 22px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;margin-top:1px;transition:.12s}
+.ack.ck .bx{background:var(--green);border-color:var(--green)}
+.ack .at{font-size:13px;line-height:1.5}.ack .at b{font-weight:700}
+.hidden{display:none!important}
+@media(max-width:860px){.tiles{grid-template-columns:1fr 1fr}.snap{grid-template-columns:1fr}.kv{grid-template-columns:1fr}.side{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mk" id="brandmk"></span> TenderProof<span class="tld">.io</span></div>
+    <nav class="nav">
+      <a data-v="dashboard" class="on"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a data-v="newcheck"><i class="ti ti-shield-check"></i> New carrier check</a>
+      <a data-v="records"><i class="ti ti-files"></i> Defense files</a>
+      <div class="lbl">Configure</div>
+      <a data-v="policy"><i class="ti ti-adjustments"></i> Carrier policy</a>
+      <a data-v="settings"><i class="ti ti-settings"></i> Settings</a>
+    </nav>
+    <div class="who"><div class="av">AF</div><div><div class="nm">Apex Freight</div><div class="org">Brokerage · 8 seats</div></div></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <div><h1 id="ptitle">Dashboard</h1><div class="sub" id="psub">Per-load carrier-selection defense files</div></div>
+      <button class="btn btn-pri" onclick="go('newcheck')"><i class="ti ti-plus"></i> New check</button>
+    </header>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section class="view on" id="v-dashboard">
+        <div class="tiles" id="kpis"></div>
+        <div class="card">
+          <div class="hd"><h2>Recent defense files</h2><a class="mt" style="cursor:pointer;color:var(--green2);font-weight:600" onclick="go('records')">View all →</a></div>
+          <div class="bd"><table><thead><tr><th>Load</th><th>Carrier</th><th>Verdict</th><th>Frozen</th><th></th></tr></thead><tbody id="dashrows"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- NEW CHECK -->
+      <section class="view" id="v-newcheck">
+        <div class="steps" id="nsteps">
+          <div class="stp on" data-s="1"><span class="dot">1</span> Carrier</div><span class="sep"></span>
+          <div class="stp" data-s="2"><span class="dot">2</span> FMCSA snapshot</div><span class="sep"></span>
+          <div class="stp" data-s="3"><span class="dot">3</span> Policy verdict</div><span class="sep"></span>
+          <div class="stp" data-s="4"><span class="dot">4</span> Freeze</div>
+        </div>
+
+        <div id="nc1">
+          <div class="card"><div class="bd" style="padding:22px">
+            <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Look up the carrier you're about to tender</h2>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Enter an MC or DOT number. We pull live FMCSA authority, insurance &amp; safety — then score it against your policy.</p>
+            <div class="lookup">
+              <input class="f" id="mcin" placeholder="MC or DOT number (e.g. MC-654321)" style="max-width:320px" onkeydown="if(event.key==='Enter')runCheck()">
+              <button class="btn btn-nav" onclick="runCheck()"><i class="ti ti-search"></i> Check carrier</button>
+            </div>
+            <div style="font-size:11.5px;color:var(--faint);margin-top:14px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Try a sample carrier</div>
+            <div class="chips" id="samplechips"></div>
+          </div></div>
+        </div>
+
+        <div id="nc2" class="hidden"></div>
+      </section>
+
+      <!-- RECORDS -->
+      <section class="view" id="v-records">
+        <div class="card">
+          <div class="hd"><h2>Defense files</h2><div class="mt" id="reccount"></div></div>
+          <div class="bd"><table><thead><tr><th>Load</th><th>Carrier</th><th>Verdict</th><th>Frozen (UTC)</th><th>Record hash</th></tr></thead><tbody id="recrows"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- RECORD DETAIL -->
+      <section class="view" id="v-detail">
+        <div style="margin-bottom:14px"><button class="btn btn-out" onclick="go('records')"><i class="ti ti-arrow-left"></i> Back to defense files</button>
+          <button class="btn btn-pri" style="float:right" onclick="downloadPDF()"><i class="ti ti-download"></i> Download PDF</button></div>
+        <div id="docmount"></div>
+      </section>
+
+      <!-- POLICY -->
+      <section class="view" id="v-policy">
+        <div class="card" style="margin-bottom:18px">
+          <div class="hd"><h2>Carrier-selection policy</h2><span class="bdg b-slate" id="polver">v1.0-draft</span></div>
+          <div class="bd" style="padding:18px"><p style="font-size:13px;color:var(--muted);line-height:1.6">This is <b>your</b> written standard. TenderProof records every decision against the version active on the tender date. Hard-stops reject a carrier; flags require a documented override. <span style="color:var(--amber)"><i class="ti ti-alert-triangle" style="vertical-align:-2px"></i> Draft — thresholds pending transportation-defense attorney review.</span></p></div>
+        </div>
+        <div class="card"><div class="hd"><h2>Rules &amp; thresholds</h2><div class="mt">Interstate scope</div></div>
+          <div class="bd" id="polrules"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="view" id="v-settings">
+        <div class="card"><div class="hd"><h2>Organization</h2></div><div class="bd" style="padding:18px">
+          <div class="psetting"><div><div class="pn">Brokerage</div><div class="pd">Apex Freight Brokerage · MC-553120</div></div><span class="bdg b-green">Active</span></div>
+          <div class="psetting"><div><div class="pn">Record retention</div><div class="pd">Write-once (WORM) storage · period set with counsel</div></div><span class="bdg b-slate">Pending legal</span></div>
+          <div class="psetting"><div><div class="pn">FMCSA data source</div><div class="pd">QCMobile + L&amp;I (free) · aggregator optional later</div></div><span class="bdg b-green">Connected</span></div>
+          <div class="psetting"><div><div class="pn">Trusted timestamp authority</div><div class="pd">DigiCert (primary) · FreeTSA (secondary)</div></div><span class="bdg b-green">RFC 3161</span></div>
+        </div></div>
+      </section>
+
+      <div class="foot" id="foot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="ob-wrap" id="obwrap">
+  <div class="ob">
+    <div class="obh"><div class="lg"><span class="mk" id="obmk" style="width:30px;height:30px"></span> TenderProof<span style="opacity:.5">.io</span></div>
+      <h2>Before you start</h2><p>TenderProof records your diligence — it never approves carriers. Please confirm:</p></div>
+    <div class="obb">
+      <div class="ack" onclick="tog(this)"><span class="bx"><i class="ti ti-check"></i></span><span class="at"><b>I am the decision-maker.</b> TenderProof helps me record my carrier-selection diligence. I decide which carriers to use.</span></div>
+      <div class="ack" onclick="tog(this)"><span class="bx"><i class="ti ti-check"></i></span><span class="at"><b>It's a recordkeeping tool, not legal advice</b> and not a safety rating. It doesn't tell me a carrier is safe or suitable.</span></div>
+      <div class="ack" onclick="tog(this)"><span class="bx"><i class="ti ti-check"></i></span><span class="at"><b>Data is third-party, "as is."</b> Carrier info comes from FMCSA and is stamped with the date retrieved; it may be delayed or incomplete.</span></div>
+      <div class="ack" onclick="tog(this)"><span class="bx"><i class="ti ti-check"></i></span><span class="at"><b>The policy is mine.</b> The criteria I adopt or tune are my company's own written standard.</span></div>
+      <button class="btn btn-pri" id="obbtn" style="width:100%;justify-content:center;margin-top:16px" disabled onclick="acceptOb()">Accept &amp; continue</button>
+      <p style="font-size:10.5px;color:var(--faint);text-align:center;margin-top:10px">Acknowledgment v0 (draft) · stamped into every defense file</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const ICON = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="116" fill="#13233a"/><path d="M256 104 L380 150 V268 C380 338 326 388 256 414 C186 388 132 338 132 268 V150 Z" fill="#f3f6fa"/><path d="M256 414 C326 388 380 338 380 268 V150 L256 104 L132 150 V268 C132 338 186 388 256 414 Z" fill="none" stroke="#c79a3a" stroke-width="7" stroke-opacity="0.6"/><path d="M199 262 L241 304 L325 212" fill="none" stroke="#12a85d" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+document.getElementById('brandmk').innerHTML=ICON;document.getElementById('obmk').innerHTML=ICON;
+const DISCLAIMER="TenderProof records the broker's diligence against the broker's own written policy. It does not provide legal advice and does not approve, rate, or endorse any carrier. Carrier data is sourced from FMCSA and third parties 'as is', each stamped with its own source date. All carrier-selection decisions are made solely by the broker. Draft — pending transportation-defense attorney sign-off.";
+document.getElementById('foot').textContent=DISCLAIMER;
+const TODAY="2026-06-22";
+
+const POLICY={name:"Apex Freight Carrier-Selection Policy",version:"v1.0-draft",scope:"interstate",
+ settings:{min_bipd:1000000,oos_flag:30,staleness:{authority:7,insurance:7,safety:45}},
+ rules:[
+  {id:"auth",field:"fmcsa.authority.value",op:"==",th:"ACTIVE",sev:"hard",label:"Operating authority must be ACTIVE"},
+  {id:"unsat",field:"fmcsa.safety.value",op:"!=",th:"Unsatisfactory",sev:"hard",label:"Safety rating must not be Unsatisfactory"},
+  {id:"insmin",field:"fmcsa.insurance.bipd",op:">=",th:1000000,sev:"hard",label:"Insurance on file ≥ minimum BIPD limit"},
+  {id:"insact",field:"fmcsa.insurance.status",op:"==",th:"ACTIVE",sev:"hard",label:"Insurance must be active (not lapsed)"},
+  {id:"idmatch",field:"carrier.id_consistent",op:"==",th:true,sev:"hard",label:"Carrier identity (MC↔DOT) consistent"},
+  {id:"nodouble",field:"carrier.double_broker",op:"==",th:false,sev:"hard",label:"No double-brokering indicator"},
+  {id:"cond",field:"fmcsa.safety.value",op:"!=",th:"Conditional",sev:"flag",label:"Conditional safety rating — review"},
+  {id:"oos",field:"fmcsa.oos.vehicle",op:"<",th:30,sev:"flag",label:"Vehicle out-of-service rate within limit"},
+ ],critical:["authority","insurance"]};
+
+const CARRIERS={
+ "MC-654321":{carrier:{name:"Sunrise Logistics LLC",dot:"3920114",mc:"MC-654321",id_consistent:true,double_broker:false},
+   fmcsa:{authority:{value:"ACTIVE",type:"Common",as_of:TODAY},insurance:{bipd:1000000,form:"BMC-91X",status:"ACTIVE",as_of:TODAY},safety:{value:"Satisfactory",rated:"2024-08-01",as_of:TODAY},oos:{vehicle:14.2,driver:2.9,as_of:TODAY}}},
+ "MC-784221":{carrier:{name:"Hauler Bros LLC",dot:"2884410",mc:"MC-784221",id_consistent:true,double_broker:false},
+   fmcsa:{authority:{value:"ACTIVE",type:"Contract",as_of:TODAY},insurance:{bipd:1000000,form:"BMC-91X",status:"ACTIVE",as_of:"2026-06-21"},safety:{value:"Conditional",rated:"2025-11-03",as_of:"2026-06-01"},oos:{vehicle:28.4,driver:4.1,as_of:"2026-06-01"}}},
+ "MC-100200":{carrier:{name:"Redline Transport",dot:"5550001",mc:"MC-100200",id_consistent:true,double_broker:false},
+   fmcsa:{authority:{value:"INACTIVE",type:"Common",as_of:TODAY},insurance:{bipd:750000,form:"BMC-91X",status:"CANCELLED",as_of:TODAY},safety:{value:"Unrated",as_of:TODAY},oos:{vehicle:41,driver:9,as_of:TODAY}}},
+};
+const SAMPLES=[["MC-654321","Sunrise Logistics","var(--green)"],["MC-784221","Hauler Bros","var(--amber)"],["MC-100200","Redline Transport","var(--red)"],["MC-000000","Unknown carrier","var(--slate)"]];
+
+let RECORDS=[];
+function seed(){
+ const mk=(load,lane,mc,seq)=>({load_id:load,lane,carrier_mc:mc,frozen:`2026-06-22 ${seq}`,seq});
+ [["BRKR-48201","Chicago IL → Dallas TX","MC-654321","09:14"],["BRKR-48188","Reno NV → Boise ID","MC-784221","08:02"],["BRKR-48177","Tampa FL → Macon GA","MC-100200","07:31"]]
+  .forEach((r,i)=>{const rec=buildRecord({load_id:r[0],lane:r[1],carrier_mc:r[2],tendered:`2026-06-22T${r[3]}:00Z`,user:"dispatch@apexfreight.com"},null);rec.frozen_label=r[3]+" UTC";RECORDS.push(rec);});
+}
+
+function resolve(o,p){return p.split('.').reduce((a,k)=>a&&a[k]!==undefined?a[k]:undefined,o);}
+function evaluate(snap){
+ const today=new Date(TODAY);const incon=[];const fs=snap.fmcsa||{};
+ const crit={authority:["authority","fmcsa.authority.value"],insurance:["insurance","fmcsa.insurance.status"]};
+ POLICY.critical.forEach(k=>{const blk=fs[crit[k][0]];const val=resolve(snap,crit[k][1]);
+  if(!blk||val===undefined||val===""){incon.push("missing critical data: "+k);return;}
+  const age=Math.round((today-new Date(blk.as_of))/86400000);const lim=POLICY.settings.staleness[k];
+  if(lim!=null&&(isNaN(age)||age>lim))incon.push(`stale ${k} data (${isNaN(age)?'unknown':age+'d'} > ${lim}d)`);});
+ const results=[];const hard=[],flags=[];
+ POLICY.rules.forEach(r=>{const a=resolve(snap,r.field);let res;
+  if(a===undefined)res="UNKNOWN";else{let ok;switch(r.op){case"==":ok=a===r.th;break;case"!=":ok=a!==r.th;break;case">=":ok=a>=r.th;break;case"<":ok=a<r.th;break;}res=ok?"PASS":(r.sev==="hard"?"FAIL":"FLAG");}
+  results.push({...r,actual:a,result:res});
+  if(res==="FAIL")hard.push(r);else if(res==="FLAG")flags.push(r);else if(res==="UNKNOWN"&&r.sev==="hard")incon.push("missing data for: "+r.id);});
+ let verdict;if(incon.length)verdict="INCONCLUSIVE";else if(hard.length)verdict="DOES_NOT_MEET";else verdict="MEETS";
+ return{verdict,results,hard:hard.map(h=>h.id),flags:flags.map(f=>f.id),flagRules:flags,incon};
+}
+
+function buildRecord(tender,overrideObj){
+ const data=CARRIERS[tender.carrier_mc]||{carrier:{mc:tender.carrier_mc,id_consistent:undefined,double_broker:undefined},fmcsa:{}};
+ const snap={carrier:data.carrier,fmcsa:data.fmcsa};
+ const ev=evaluate(snap);
+ const payload={tender,carrier:data.carrier,fmcsa:data.fmcsa,policy:{name:POLICY.name,version:POLICY.version,scope:POLICY.scope},evaluation:ev,override:overrideObj||null,disclaimer:DISCLAIMER};
+ return{...tender,snap,ev,payload,override:overrideObj||null,frozen_label:"—",payload_sha256:"(computed on freeze)",record_hash:"(computed on freeze)",ts:"(on freeze)"};
+}
+
+async function sha256(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+function canon(o){return JSON.stringify(o,Object.keys(o).sort?undefined:undefined);}
+function sortedStringify(o){return JSON.stringify(o,(k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.keys(v).sort().reduce((a,kk)=>(a[kk]=v[kk],a),{}):v);}
+
+const V={MEETS:["v-meets","ti-shield-check","Meets your policy","b-green","Defended"],
+ MEETS_FLAG:["v-flag","ti-flag","Meets your policy — override required","b-gold","Override logged"],
+ DOES_NOT_MEET:["v-fail","ti-shield-x","Does not meet your policy","b-red","Declined"],
+ INCONCLUSIVE:["v-incon","ti-help-circle","Inconclusive — do not tender","b-slate","Inconclusive"]};
+function vkey(ev){if(ev.verdict==="MEETS"&&ev.flags.length)return"MEETS_FLAG";return ev.verdict;}
+
+/* ---------- views ---------- */
+const TITLES={dashboard:["Dashboard","Per-load carrier-selection defense files"],newcheck:["New carrier check","Look up, score, and freeze a defense file"],records:["Defense files","Your frozen, timestamped records"],detail:["Defense file","Frozen carrier-selection record"],policy:["Carrier policy","Your written carrier-selection standard"],settings:["Settings","Organization & data sources"]};
+function go(v){document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');
+ document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
+ document.getElementById('ptitle').textContent=TITLES[v][0];document.getElementById('psub').textContent=TITLES[v][1];
+ if(v==='dashboard')renderDash();if(v==='records')renderRecords();if(v==='policy')renderPolicy();if(v==='newcheck')resetCheck();window.scrollTo(0,0);}
+document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click',()=>go(a.dataset.v)));
+
+function renderDash(){
+ const meets=RECORDS.filter(r=>r.ev.verdict==="MEETS").length;
+ const declined=RECORDS.filter(r=>r.ev.verdict==="DOES_NOT_MEET").length;
+ const flagged=RECORDS.filter(r=>r.ev.flags&&r.ev.flags.length).length;
+ document.getElementById('kpis').innerHTML=[
+  ["Loads documented","ti-files",RECORDS.length,""],
+  ["Coverage","ti-circle-check","100",'<small>%</small>'],
+  ["Flags handled","ti-flag",flagged,""],
+  ["Declined pre-tender","ti-shield-x",declined,""]
+ ].map(k=>`<div class="tile"><div class="l"><i class="ti ${k[1]}"></i> ${k[0]}</div><div class="n">${k[2]}${k[3]}</div></div>`).join('');
+ document.getElementById('dashrows').innerHTML=RECORDS.slice(0,5).map(rowHtml).join('');
+}
+function rowHtml(r){const vk=vkey(r.ev);const v=V[vk];return `<tr class="rrow" onclick="openRecord('${r.load_id}')"><td><b>${r.load_id}</b><div class="rt" style="font-size:11.5px;color:var(--faint)">${r.lane}</div></td><td>${r.snap.carrier.name||r.carrier_mc}<div class="rt" style="font-size:11.5px;color:var(--faint)">${r.carrier_mc}</div></td><td><span class="bdg ${v[3]}"><i class="ti ${v[1]}" style="font-size:13px"></i> ${v[4]}</span></td><td class="mono">${r.frozen_label}</td><td style="text-align:right"><i class="ti ti-chevron-right" style="color:var(--faint)"></i></td></tr>`;}
+
+function renderRecords(){document.getElementById('recrows').innerHTML=RECORDS.map(r=>{const vk=vkey(r.ev);const v=V[vk];return `<tr class="rrow" onclick="openRecord('${r.load_id}')"><td><b>${r.load_id}</b><div style="font-size:11.5px;color:var(--faint)">${r.lane}</div></td><td>${r.snap.carrier.name||r.carrier_mc}</td><td><span class="bdg ${v[3]}">${v[4]}</span></td><td class="mono">${r.frozen_label}</td><td class="mono" style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${(r.record_hash||'').slice(0,16)}…</td></tr>`;}).join('');
+ document.getElementById('reccount').textContent=RECORDS.length+" records";}
+
+function renderPolicy(){document.getElementById('polver').textContent=POLICY.version;
+ const sevB=s=>s==="hard"?'<span class="bdg b-red">Hard stop</span>':'<span class="bdg b-gold">Flag · review</span>';
+ document.getElementById('polrules').innerHTML=POLICY.rules.map(r=>`<div class="psetting"><div><div class="pn">${r.label}</div><div class="pd mono">${r.field} ${r.op} ${r.th}</div></div>${sevB(r.sev)}</div>`).join('')+
+ `<div class="psetting"><div><div class="pn">Fail-safe</div><div class="pd">Missing or stale critical data → verdict <b>INCONCLUSIVE — do not tender</b></div></div><span class="bdg b-slate">Always on</span></div>`;}
+
+/* ---------- new check flow ---------- */
+let CURRENT=null;
+function resetCheck(){document.getElementById('nc1').classList.remove('hidden');document.getElementById('nc2').classList.add('hidden');document.getElementById('nc2').innerHTML='';document.getElementById('mcin').value='';setStep(1);
+ document.getElementById('samplechips').innerHTML=SAMPLES.map(s=>`<div class="chip" onclick="document.getElementById('mcin').value='${s[0]}';runCheck()"><span class="d" style="background:${s[2]}"></span> ${s[1]} <span style="color:var(--faint)">${s[0]}</span></div>`).join('');}
+function setStep(n){document.querySelectorAll('#nsteps .stp').forEach(s=>{const i=+s.dataset.s;s.classList.toggle('on',i===n);s.classList.toggle('done',i<n);});}
+
+function runCheck(){const mc=document.getElementById('mcin').value.trim().toUpperCase()||"MC-000000";
+ CURRENT=buildRecord({load_id:"BRKR-"+(48210+RECORDS.length),lane:"Laredo TX → Memphis TN",carrier_mc:mc,tendered:new Date().toISOString(),user:"dispatch@apexfreight.com"},null);
+ document.getElementById('nc1').classList.add('hidden');document.getElementById('nc2').classList.remove('hidden');
+ renderCheck();setStep(3);}
+
+function renderCheck(){const r=CURRENT;const s=r.snap;const ev=r.ev;const f=s.fmcsa;const found=!!s.carrier.name;
+ const vk=vkey(ev);const v=V[vk];
+ const snapHtml=found?`<div class="snap">
+   <div class="row"><div class="k">Operating authority</div><div class="v">${f.authority.value} <span style="font-size:12px;color:var(--faint)">(${f.authority.type})</span></div><div class="src">source as of ${f.authority.as_of}</div></div>
+   <div class="row"><div class="k">Insurance on file</div><div class="v">$${(f.insurance.bipd).toLocaleString()} <span style="font-size:12px;color:var(--faint)">${f.insurance.status}</span></div><div class="src">${f.insurance.form} · as of ${f.insurance.as_of}</div></div>
+   <div class="row"><div class="k">Safety rating</div><div class="v">${f.safety.value}</div><div class="src">${f.safety.rated?'rated '+f.safety.rated+' · ':''}as of ${f.safety.as_of}</div></div>
+   <div class="row"><div class="k">Out-of-service</div><div class="v">${f.oos.vehicle}% <span style="font-size:12px;color:var(--faint)">veh</span></div><div class="src">driver ${f.oos.driver}% · as of ${f.oos.as_of}</div></div>
+ </div>`:`<div class="snap"><div class="row" style="border-right:none;grid-column:1/3"><div class="k">FMCSA lookup</div><div class="v" style="color:var(--slate)">No record returned for ${s.carrier.mc}</div><div class="src">Critical authority + insurance data unavailable</div></div></div>`;
+ const ruleHtml=`<div class="rules">`+ev.results.map(rr=>{const m={PASS:["ri-pass","ti-check"],FAIL:["ri-fail","ti-x"],FLAG:["ri-flag","ti-flag"],UNKNOWN:["ri-unk","ti-help-circle"]}[rr.result];return `<div class="rule"><span class="ri ${m[0]}"><i class="ti ${m[1]}"></i></span><span class="rl">${rr.label}</span><span class="rt">${rr.result}</span></div>`;}).join('')+`</div>`;
+ let overrideHtml='';
+ if(ev.verdict==="MEETS"&&ev.flags.length){overrideHtml=`<div class="ovr"><h3><i class="ti ti-flag"></i> ${ev.flags.length} flag(s) require a documented override</h3><p>Per your policy, you may proceed only by recording who approved and why. This is captured in the defense file.</p>
+   <input class="f" id="ovapprover" placeholder="Approver (name / email)" style="margin-bottom:10px" oninput="checkOvr()">
+   <textarea class="f" id="ovreason" rows="2" placeholder="Justification (e.g. recent clean inspections; used 4× in prior 90 days without incident)" oninput="checkOvr()"></textarea></div>`;}
+ document.getElementById('nc2').innerHTML=`
+  <div class="card" style="margin-bottom:16px"><div class="hd"><h2>${s.carrier.name||'Unknown carrier'} <span style="font-weight:500;color:var(--faint);font-size:13px">· ${s.carrier.mc}${s.carrier.dot?' · DOT '+s.carrier.dot:''}</span></h2><div class="mt">${r.load_id} · ${r.lane}</div></div>
+   <div class="bd" style="padding:16px"><div class="sec-t" style="margin-top:4px">FMCSA snapshot — each datum stamped with its own source date</div>${snapHtml}</div></div>
+  <div class="verdict ${v[0]}"><div class="ic"><i class="ti ${v[1]}"></i></div><div><div class="t">${v[2]}</div><div class="s">${verdSub(ev)}</div></div></div>
+  <div class="card"><div class="hd"><h2>Policy evaluation</h2><div class="mt">${POLICY.name} · ${POLICY.version}</div></div><div class="bd" style="padding:16px">${ruleHtml}${overrideHtml}</div></div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px">
+    <button class="btn btn-out" onclick="resetCheck()"><i class="ti ti-arrow-left"></i> New lookup</button>
+    ${freezeBtn(ev)}
+  </div>`;
+ if(ev.verdict==="MEETS"&&ev.flags.length)setTimeout(checkOvr,0);
+}
+function verdSub(ev){if(ev.verdict==="INCONCLUSIVE")return ev.incon.join(" · ");if(ev.verdict==="DOES_NOT_MEET")return ev.hard.length+" hard-stop rule(s) failed";if(ev.flags.length)return ev.flags.length+" flag(s) to handle before tender";return "All hard-stop rules pass";}
+function freezeBtn(ev){if(ev.verdict==="DOES_NOT_MEET")return `<button class="btn btn-nav" onclick="doFreeze()"><i class="ti ti-lock"></i> Freeze decline record</button>`;
+ if(ev.verdict==="INCONCLUSIVE")return `<button class="btn btn-nav" onclick="doFreeze()"><i class="ti ti-lock"></i> Freeze inconclusive record</button>`;
+ if(ev.flags.length)return `<button class="btn btn-pri" id="freezebtn" disabled onclick="doFreeze()"><i class="ti ti-lock"></i> Freeze defense file</button>`;
+ return `<button class="btn btn-pri" onclick="doFreeze()"><i class="ti ti-lock"></i> Freeze defense file</button>`;}
+function checkOvr(){const a=document.getElementById('ovapprover'),r=document.getElementById('ovreason'),b=document.getElementById('freezebtn');if(a&&r&&b)b.disabled=!(a.value.trim()&&r.value.trim());}
+
+async function doFreeze(){const r=CURRENT;
+ if(r.ev.verdict==="MEETS"&&r.ev.flags.length){const a=document.getElementById('ovapprover').value.trim(),j=document.getElementById('ovreason').value.trim();
+   r.override={flags:r.ev.flags,approver:a,justification:j};r.payload.override=r.override;}
+ setStep(4);
+ document.getElementById('nc2').innerHTML=`<div class="card"><div class="bd freeze-box"><div style="font-size:30px;color:var(--green)"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i></div><h2 style="font-size:16px;margin:12px 0 4px">Freezing defense file…</h2><p style="font-size:13px;color:var(--muted)">Canonical JSON → SHA-256 → trusted timestamp → hash chain</p></div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+ const prev=RECORDS.length?RECORDS[0].record_hash:"0".repeat(64);
+ const payloadStr=sortedStringify(r.payload);
+ const psha=await sha256(payloadStr);
+ const ts=new Date().toISOString().replace('T',' ').slice(0,19)+" UTC";
+ const core={seq:RECORDS.length,payload_sha256:psha,prev_record_hash:prev,frozen:ts};
+ const rhash=await sha256(sortedStringify(core));
+ r.payload_sha256=psha;r.prev_record_hash=prev;r.record_hash=rhash;r.ts=ts;r.frozen_label=new Date().toISOString().slice(11,16)+" UTC";
+ RECORDS.unshift(r);
+ await new Promise(z=>setTimeout(z,650));
+ const vk=vkey(r.ev);const v=V[vk];
+ document.getElementById('nc2').innerHTML=`<div class="card"><div class="bd freeze-box">
+   <div style="width:60px;height:60px;border-radius:50%;background:var(--green-bg);color:var(--green2);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px"><i class="ti ti-circle-check"></i></div>
+   <h2 style="font-size:17px;margin-bottom:4px">Defense file frozen</h2>
+   <p style="font-size:13px;color:var(--muted);margin-bottom:6px">${r.load_id} · ${r.snap.carrier.name||r.carrier_mc} · <span class="bdg ${v[3]}">${v[4]}</span></p>
+   <div class="seal" style="text-align:left;max-width:560px;margin:16px auto 0">
+     <div class="sr"><span class="sk">Snapshot SHA-256</span><span class="sv">${psha}</span></div>
+     <div class="sr"><span class="sk">Previous record hash</span><span class="sv">${prev.slice(0,32)}…</span></div>
+     <div class="sr"><span class="sk">Record hash</span><span class="sv">${rhash}</span></div>
+     <div class="sr"><span class="sk">RFC 3161 timestamp</span><span class="sv">${ts}</span></div>
+   </div>
+   <div style="display:flex;gap:10px;justify-content:center;margin-top:18px">
+     <button class="btn btn-out" onclick="resetCheck()"><i class="ti ti-plus"></i> Check another</button>
+     <button class="btn btn-pri" onclick="openRecord('${r.load_id}')"><i class="ti ti-file-text"></i> View defense file</button>
+   </div></div></div>`;
+}
+
+/* ---------- defense file doc ---------- */
+let DETAIL=null;
+function openRecord(id){const r=RECORDS.find(x=>x.load_id===id);if(!r)return;DETAIL=r;go('detail');document.getElementById('docmount').innerHTML=docHtml(r);}
+function docHtml(r){const s=r.snap,f=s.fmcsa,ev=r.ev,vk=vkey(ev),v=V[vk];const found=!!s.carrier.name;
+ const rl=ev.results.map(rr=>{const c={PASS:'b-green',FAIL:'b-red',FLAG:'b-gold',UNKNOWN:'b-slate'}[rr.result];return `<div class="rule"><span class="rl">${rr.label}</span><span class="bdg ${c}">${rr.result}</span></div>`;}).join('');
+ const ov=r.override?`<div class="ovr" style="margin:14px 0"><h3><i class="ti ti-flag"></i> Flag handled — documented override</h3><p style="margin:0"><b>Approver:</b> ${r.override.approver}<br><b>Justification:</b> ${r.override.justification}</p></div>`:'';
+ const snp=found?`<div class="kv">
+   <div class="kk">Operating authority</div><div class="kk">Insurance on file</div>
+   <div>${f.authority.value} (${f.authority.type})<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.authority.as_of}</div></div>
+   <div>$${f.insurance.bipd.toLocaleString()} ${f.insurance.form} · ${f.insurance.status}<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.insurance.as_of}</div></div>
+   <div class="kk">Safety rating</div><div class="kk">Out-of-service</div>
+   <div>${f.safety.value}<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.safety.as_of}</div></div>
+   <div>veh ${f.oos.vehicle}% · drv ${f.oos.driver}%<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.oos.as_of}</div></div>
+ </div>`:`<div class="kv"><div class="kk">FMCSA lookup</div><div class="kk">Result</div><div>${s.carrier.mc}</div><div>No record returned — critical data unavailable</div></div>`;
+ return `<div class="doc"><div class="dh"><div class="lg"><span style="width:28px;height:28px;display:inline-block">${ICON}</span> TenderProof<span style="opacity:.5">.io</span></div>
+   <h2>Carrier-Selection Defense File</h2><p>Record, never vouch — documents the broker's diligence against the broker's own policy.</p></div>
+   <div class="db">
+     <div class="kv"><div class="kk">Load</div><div class="kk">Carrier</div><div><b>${r.load_id}</b><div class="rt" style="font-size:11px;color:var(--faint)">${r.lane}</div></div><div>${s.carrier.name||'Unknown'} <div class="rt" style="font-size:11px;color:var(--faint)">${s.carrier.mc}${s.carrier.dot?' · DOT '+s.carrier.dot:''}</div></div>
+       <div class="kk">Tendered</div><div class="kk">Broker user</div><div>${r.payload.tender.tendered.slice(0,19).replace('T',' ')} UTC</div><div>dispatch@apexfreight.com</div></div>
+     <div class="verdict ${v[0]}" style="margin:6px 0 16px"><div class="ic"><i class="ti ${v[1]}"></i></div><div><div class="t">${v[2]}</div><div class="s">${verdSub(ev)}</div></div></div>
+     <div class="sec-t">FMCSA snapshot</div>${snp}
+     <div class="sec-t">Policy evaluation — ${POLICY.name} (${POLICY.version}, ${POLICY.scope})</div><div class="rules">${rl}</div>${ov}
+     <div class="sec-t">Tamper-evident seal</div>
+     <div class="seal"><div class="sr"><span class="sk">Snapshot SHA-256</span><span class="sv">${r.payload_sha256}</span></div>
+       <div class="sr"><span class="sk">Previous record hash</span><span class="sv">${(r.prev_record_hash||'').slice(0,40)}…</span></div>
+       <div class="sr"><span class="sk">Record hash</span><span class="sv">${r.record_hash}</span></div>
+       <div class="sr"><span class="sk">RFC 3161 timestamp</span><span class="sv">${r.ts}</span></div></div>
+     <div class="disc">${DISCLAIMER}</div>
+   </div></div>`;
+}
+
+function downloadPDF(){const r=DETAIL;if(!r){return;}
+ try{const {jsPDF}=window.jspdf;const d=new jsPDF({unit:'pt',format:'letter'});const s=r.snap,f=s.fmcsa,ev=r.ev;let y=54;const L=54;
+ d.setFillColor(15,27,45);d.rect(0,0,612,84,'F');d.setTextColor(255);d.setFont('helvetica','bold');d.setFontSize(15);d.text("TenderProof — Carrier-Selection Defense File",L,40);
+ d.setFont('helvetica','normal');d.setFontSize(8.5);d.setTextColor(170,190,210);d.text("Record, never vouch. Documents the broker's diligence against the broker's own policy. Not legal advice.",L,58);
+ y=108;d.setTextColor(20,30,45);d.setFontSize(10);d.setFont('helvetica','bold');
+ const line=(k,v)=>{d.setFont('helvetica','bold');d.setTextColor(95,110,130);d.setFontSize(8);d.text(k.toUpperCase(),L,y);d.setFont('helvetica','normal');d.setTextColor(20,30,45);d.setFontSize(10);d.text(String(v),L,y+13);y+=30;};
+ line("Load",`${r.load_id}   (${r.lane})`);line("Carrier",`${s.carrier.name||'Unknown'} · ${s.carrier.mc}${s.carrier.dot?' · DOT '+s.carrier.dot:''}`);line("Tendered (UTC)",r.payload.tender.tendered.slice(0,19).replace('T',' '));
+ const vtxt={MEETS:"MEETS YOUR POLICY",MEETS_FLAG:"MEETS YOUR POLICY — WITH DOCUMENTED OVERRIDE",DOES_NOT_MEET:"DOES NOT MEET YOUR POLICY",INCONCLUSIVE:"INCONCLUSIVE — DO NOT TENDER"}[vkey(ev)];
+ y+=6;d.setFont('helvetica','bold');d.setFontSize(11);d.setTextColor(15,143,77);if(vkey(ev)==='DOES_NOT_MEET')d.setTextColor(195,59,59);if(vkey(ev)==='INCONCLUSIVE')d.setTextColor(91,107,128);if(vkey(ev)==='MEETS_FLAG')d.setTextColor(169,109,18);
+ d.text("Verdict: "+vtxt,L,y);y+=22;
+ d.setFontSize(8.5);d.setTextColor(95,110,130);d.setFont('helvetica','bold');d.text("POLICY EVALUATION",L,y);y+=14;
+ ev.results.forEach(rr=>{d.setFont('helvetica','normal');d.setTextColor(20,30,45);d.setFontSize(9);d.text("• "+rr.label,L,y);d.setFont('helvetica','bold');d.text(rr.result,512,y,{align:'right'});y+=15;});
+ if(r.override){y+=6;d.setTextColor(169,109,18);d.setFont('helvetica','bold');d.setFontSize(9);d.text("Flag handled — override:",L,y);y+=13;d.setFont('helvetica','normal');d.setTextColor(60,60,60);
+   d.text(d.splitTextToSize(`Approver: ${r.override.approver}. ${r.override.justification}`,500),L,y);y+=26;}
+ y+=10;d.setFillColor(14,27,45);d.rect(L,y,504,86,'F');d.setTextColor(214,224,236);d.setFontSize(7.5);let yy=y+16;
+ const seal=(k,v)=>{d.setTextColor(123,138,160);d.text(k,L+12,yy);d.setTextColor(214,224,236);d.text(v,L+150,yy);yy+=18;};
+ d.setFont('helvetica','normal');seal("Snapshot SHA-256",r.payload_sha256.slice(0,48));seal("Record hash",r.record_hash.slice(0,48));seal("RFC 3161 timestamp",r.ts);seal("Prev record hash",(r.prev_record_hash||'').slice(0,48)+"…");
+ y+=98;d.setTextColor(120,130,145);d.setFontSize(7);d.text(d.splitTextToSize(DISCLAIMER,504),L,y);
+ d.save(`TenderProof_${r.load_id}.pdf`);}catch(e){alert("PDF export needs the jsPDF library (loads from CDN). In the production app this renders server-side. "+e.message);}
+}
+
+/* ---------- onboarding ---------- */
+function tog(el){el.classList.toggle('ck');const all=document.querySelectorAll('.ack');const done=[...all].every(a=>a.classList.contains('ck'));document.getElementById('obbtn').disabled=!done;}
+function acceptOb(){document.getElementById('obwrap').classList.add('hidden');}
+
+seed();renderDash();
+</script>
+</body>
+</html>
