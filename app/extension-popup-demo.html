@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f1b2d;--ink:#16202e;--muted:#5f6e82;--faint:#8b97a8;--line:#e7e9ef;--card:#fff;
+  --green:#0f8f4d;--green2:#0c7a41;--green-bg:#e7f6ee;--gold:#bf8f33;--amber:#a96d12;--amber-bg:#fbf0d9;
+  --red:#c33b3b;--red-bg:#fbe9e9;--slate:#5b6b80;--slate-bg:#eef1f5}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;width:368px;color:var(--ink);background:#f4f6f9;font-size:13px}
+.hd{background:var(--navy);color:#fff;padding:13px 16px;display:flex;align-items:center;gap:9px}
+.hd img{width:26px;height:26px}
+.hd b{font-size:15px;font-weight:700}.hd .tld{opacity:.5;font-weight:600}
+.hd .sp{margin-left:auto;font-size:11px;color:#9fb0c6}
+.bd{padding:14px 16px}
+.lbl{font-size:11px;color:var(--faint);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.row{display:flex;gap:8px}
+input{flex:1;font-family:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;outline:none}
+input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(15,143,77,.12)}
+.btn{font-family:inherit;font-size:12.5px;font-weight:600;padding:9px 13px;border-radius:9px;border:1px solid transparent;cursor:pointer}
+.btn-nav{background:var(--navy);color:#fff}.btn-pri{background:var(--green);color:#fff;width:100%;margin-top:10px}
+.btn-out{background:#fff;border-color:var(--line);color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.chip{font-size:11.5px;font-weight:600;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;color:var(--muted)}
+.chip:hover{border-color:var(--green);color:var(--ink)}
+.verdict{display:flex;align-items:center;gap:10px;border-radius:11px;padding:12px 13px;margin:13px 0 10px}
+.verdict .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;flex:0 0 30px}
+.verdict .t{font-size:13.5px;font-weight:800}.verdict .s{font-size:11px;color:var(--muted)}
+.tp-meets{background:var(--green-bg)}.tp-meets .ic{background:var(--green)}.tp-meets .t{color:var(--green2)}
+.tp-flag{background:var(--amber-bg)}.tp-flag .ic{background:var(--amber)}.tp-flag .t{color:var(--amber)}
+.tp-fail{background:var(--red-bg)}.tp-fail .ic{background:var(--red)}.tp-fail .t{color:var(--red)}
+.tp-incon{background:var(--slate-bg)}.tp-incon .ic{background:var(--slate)}.tp-incon .t{color:var(--slate)}
+.snap{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.snap .r{display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--line);font-size:12px}
+.snap .r:last-child{border-bottom:none}.snap .k{color:var(--muted)}.snap .v{font-weight:600}
+.snap .as{font-size:10px;color:var(--faint)}
+.ovr{background:var(--amber-bg);border:1px solid #ecd9a8;border-radius:10px;padding:11px;margin-top:10px}
+.ovr .lbl{color:var(--amber)}
+.ovr input,.ovr textarea{width:100%;margin-bottom:7px;font-family:inherit;font-size:12px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;outline:none}
+.seal{background:#0e1b2d;border-radius:10px;padding:11px;margin-top:11px;color:#aebccf;font-size:10.5px}
+.seal .r{display:flex;justify-content:space-between;gap:8px;padding:3px 0}
+.seal .k{color:#7b8aa0}.seal .v{font-family:ui-monospace,monospace;color:#d6e0ec;word-break:break-all;text-align:right}
+.foot{font-size:10px;color:var(--faint);padding:11px 16px;line-height:1.5;border-top:1px solid var(--line)}
+.foot a{color:var(--green2);font-weight:600}
+.hide{display:none}
+.spin{display:inline-block;animation:s 1s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
+
+</style>
+</head>
+<body style="margin:24px auto;border:1px solid #e7e9ef;border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(15,27,45,.12)">
+  <div class="hd"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27116%27%20fill%3D%27%2313233a%27%2F%3E%3Cpath%20d%3D%27M256%20104%20L380%20150%20V268%20C380%20338%20326%20388%20256%20414%20C186%20388%20132%20338%20132%20268%20V150%20Z%27%20fill%3D%27%23f3f6fa%27%2F%3E%3Cpath%20d%3D%27M256%20414%20C326%20388%20380%20338%20380%20268%20V150%20L256%20104%20L132%20150%20V268%20C132%20338%20186%20388%20256%20414%20Z%27%20fill%3D%27none%27%20stroke%3D%27%23c79a3a%27%20stroke-width%3D%277%27%20stroke-opacity%3D%270.6%27%2F%3E%3Cpath%20d%3D%27M199%20262%20L241%20304%20L325%20212%27%20fill%3D%27none%27%20stroke%3D%27%2312a85d%27%20stroke-width%3D%2734%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E" alt=""><b>TenderProof<span class="tld">.io</span></b><span class="sp">demo · mock data</span></div>
+  <div class="bd">
+    <div id="lookup">
+      <div class="lbl">Check a carrier before you tender</div>
+      <div class="row"><input id="mc" placeholder="MC or DOT (e.g. MC-654321)"><button class="btn btn-nav" id="go">Check</button></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div id="result" class="hide"></div>
+  </div>
+  <div class="foot" id="foot"></div>
+  <script>
+/* TenderProof extension — shared client. Exposes window.TP.
+ * Talks to the hosted API when configured (apiBase), else runs an in-browser
+ * engine so the extension is fully demoable with no backend. Record, never vouch. */
+(function () {
+  const TODAY = "2026-06-22";
+  const DISCLAIMER = "TenderProof records the broker's diligence against the broker's own written policy. It does not provide legal advice and does not approve, rate, or endorse any carrier. Draft — pending transportation-defense attorney sign-off.";
+
+  const POLICY = { name: "Your Carrier-Selection Policy", version: "v1.0-draft", scope: "interstate",
+    rules: [
+      { id: "auth", field: ["fmcsa", "authority", "value"], op: "==", th: "ACTIVE", sev: "hard", label: "Operating authority must be ACTIVE" },
+      { id: "unsat", field: ["fmcsa", "safety", "value"], op: "!=", th: "Unsatisfactory", sev: "hard", label: "Safety rating must not be Unsatisfactory" },
+      { id: "insmin", field: ["fmcsa", "insurance", "bipd"], op: ">=", th: 1000000, sev: "hard", label: "Insurance on file >= minimum BIPD" },
+      { id: "insact", field: ["fmcsa", "insurance", "status"], op: "==", th: "ACTIVE", sev: "hard", label: "Insurance must be active" },
+      { id: "cond", field: ["fmcsa", "safety", "value"], op: "!=", th: "Conditional", sev: "flag", label: "Conditional safety rating — review" },
+      { id: "oos", field: ["fmcsa", "oos", "vehicle"], op: "<", th: 30, sev: "flag", label: "Vehicle out-of-service rate within limit" },
+    ], critical: ["authority", "insurance"], staleness: { authority: 7, insurance: 7 } };
+
+  const CARRIERS = {
+    "MC-654321": { carrier: { name: "Sunrise Logistics LLC", dot: "3920114", mc: "MC-654321" }, fmcsa: { authority: { value: "ACTIVE", as_of: TODAY }, insurance: { bipd: 1000000, status: "ACTIVE", as_of: TODAY }, safety: { value: "Satisfactory", as_of: TODAY }, oos: { vehicle: 14.2, as_of: TODAY } } },
+    "MC-784221": { carrier: { name: "Hauler Bros LLC", dot: "2884410", mc: "MC-784221" }, fmcsa: { authority: { value: "ACTIVE", as_of: TODAY }, insurance: { bipd: 1000000, status: "ACTIVE", as_of: "2026-06-21" }, safety: { value: "Conditional", as_of: "2026-06-01" }, oos: { vehicle: 28.4, as_of: "2026-06-01" } } },
+    "MC-100200": { carrier: { name: "Redline Transport", dot: "5550001", mc: "MC-100200" }, fmcsa: { authority: { value: "INACTIVE", as_of: TODAY }, insurance: { bipd: 750000, status: "CANCELLED", as_of: TODAY }, safety: { value: "Unrated", as_of: TODAY }, oos: { vehicle: 41, as_of: TODAY } } },
+  };
+
+  function get(o, path) { return path.reduce((a, k) => (a && a[k] !== undefined ? a[k] : undefined), o); }
+  function evaluate(snap) {
+    const today = new Date(TODAY); const incon = [];
+    const crit = { authority: ["fmcsa", "authority"], insurance: ["fmcsa", "insurance"] };
+    POLICY.critical.forEach((k) => { const blk = get(snap, crit[k]); if (!blk || blk.value === "" ) { incon.push("missing critical data: " + k); return; }
+      const age = Math.round((today - new Date(blk.as_of)) / 86400000); const lim = POLICY.staleness[k];
+      if (lim != null && (isNaN(age) || age > lim)) incon.push("stale " + k + " data"); });
+    const results = [], hard = [], flags = [];
+    POLICY.rules.forEach((r) => { const a = get(snap, r.field); let res;
+      if (a === undefined) res = "UNKNOWN"; else { let ok; switch (r.op) { case "==": ok = a === r.th; break; case "!=": ok = a !== r.th; break; case ">=": ok = a >= r.th; break; case "<": ok = a < r.th; break; } res = ok ? "PASS" : (r.sev === "hard" ? "FAIL" : "FLAG"); }
+      results.push({ id: r.id, label: r.label, sev: r.sev, result: res });
+      if (res === "FAIL") hard.push(r.id); else if (res === "FLAG") flags.push(r.id); else if (res === "UNKNOWN" && r.sev === "hard") incon.push("missing data: " + r.id); });
+    let verdict = incon.length ? "INCONCLUSIVE" : hard.length ? "DOES_NOT_MEET" : "MEETS";
+    return { verdict, results, hard, flags, incon, policy_version: POLICY.version };
+  }
+
+  async function sha256(s) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join(""); }
+  function canon(o) { return JSON.stringify(o, (k, v) => (v && typeof v === "object" && !Array.isArray(v) ? Object.keys(v).sort().reduce((a, kk) => ((a[kk] = v[kk]), a), {}) : v)); }
+
+  async function getApiBase() { try { const r = await chrome.storage?.local.get("apiBase"); return r?.apiBase || ""; } catch { return ""; } }
+
+  const TP = {
+    DISCLAIMER, POLICY,
+    async check(q) {
+      const base = await getApiBase();
+      if (base) { const r = await fetch(base + "/api/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(q) }); return r.json(); }
+      const data = CARRIERS[(q.mc || "").toUpperCase()] || { carrier: { mc: q.mc, name: "" }, fmcsa: {} };
+      return { carrier: data.carrier, fmcsa: data.fmcsa, evaluation: evaluate(data) };
+    },
+    async freeze(payload) {
+      const base = await getApiBase();
+      if (base) { const r = await fetch(base + "/api/freeze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); return r.json(); }
+      const psha = await sha256(canon(payload)); const ts = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
+      const rhash = await sha256(canon({ payload_sha256: psha, frozen: ts })); return { verdict: payload.policy_evaluation?.verdict, payload_sha256: psha, record_hash: rhash, ts };
+    },
+    verdictMeta(ev) {
+      if (ev.verdict === "INCONCLUSIVE") return { cls: "tp-incon", txt: "Inconclusive — do not tender", icon: "?" };
+      if (ev.verdict === "DOES_NOT_MEET") return { cls: "tp-fail", txt: "Does not meet your policy", icon: "✕" };
+      if (ev.flags && ev.flags.length) return { cls: "tp-flag", txt: "Meets — override required", icon: "!" };
+      return { cls: "tp-meets", txt: "Meets your policy", icon: "✓" };
+    },
+  };
+  if (typeof window !== "undefined") window.TP = TP;
+})();
+
+</script>
+  <script>
+/* TenderProof popup logic. Uses window.TP (lib/api.js). */
+const SAMPLES = [["MC-654321", "Sunrise", "#0f8f4d"], ["MC-784221", "Hauler Bros", "#a96d12"], ["MC-100200", "Redline", "#c33b3b"], ["MC-000000", "Unknown", "#5b6b80"]];
+document.getElementById("foot").innerHTML = TP.DISCLAIMER + ' <a href="https://tenderproof.io" target="_blank">Open full dashboard ↗</a>';
+const chips = document.getElementById("chips");
+chips.innerHTML = SAMPLES.map((s) => `<span class="chip" data-mc="${s[0]}"><span style="color:${s[2]}">●</span> ${s[1]}</span>`).join("");
+chips.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => { document.getElementById("mc").value = c.dataset.mc; run(); }));
+document.getElementById("go").addEventListener("click", run);
+document.getElementById("mc").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+
+let CURRENT = null;
+async function run() {
+  const mc = (document.getElementById("mc").value || "MC-000000").trim().toUpperCase();
+  const res = document.getElementById("result");
+  res.classList.remove("hide");
+  res.innerHTML = '<div style="text-align:center;padding:18px;color:var(--muted)"><span class="spin">↻</span> Checking FMCSA…</div>';
+  const data = await TP.check({ mc });
+  CURRENT = { mc, ...data };
+  const ev = data.evaluation; const v = TP.verdictMeta(ev); const f = data.fmcsa || {}; const found = !!(data.carrier && data.carrier.name);
+  const snap = found ? `<div class="snap">
+    <div class="r"><span class="k">Authority</span><span class="v">${f.authority.value}<div class="as">as of ${f.authority.as_of}</div></span></div>
+    <div class="r"><span class="k">Insurance</span><span class="v">$${(f.insurance.bipd).toLocaleString()} ${f.insurance.status}<div class="as">as of ${f.insurance.as_of}</div></span></div>
+    <div class="r"><span class="k">Safety rating</span><span class="v">${f.safety.value}<div class="as">as of ${f.safety.as_of}</div></span></div>
+    <div class="r"><span class="k">Vehicle OOS</span><span class="v">${f.oos.vehicle}%</span></div></div>`
+    : `<div class="snap"><div class="r"><span class="k">FMCSA lookup</span><span class="v" style="color:var(--slate)">No record for ${mc}</span></div></div>`;
+  const ovr = (ev.verdict === "MEETS" && ev.flags.length) ? `<div class="ovr"><div class="lbl">Flag — documented override required</div>
+    <input id="ova" placeholder="Approver (name / email)"><textarea id="ovj" rows="2" placeholder="Justification"></textarea></div>` : "";
+  res.innerHTML = `<div style="font-weight:700;font-size:13.5px;margin-top:4px">${data.carrier.name || "Unknown carrier"} <span style="color:var(--faint);font-weight:500">· ${mc}</span></div>
+    <div class="verdict ${v.cls}"><div class="ic">${v.icon}</div><div><div class="t">${v.txt}</div><div class="s">${sub(ev)}</div></div></div>
+    ${snap}${ovr}
+    <button class="btn btn-pri" id="freeze">🔒 Freeze defense file</button>`;
+  const fb = document.getElementById("freeze");
+  if (ev.verdict === "MEETS" && ev.flags.length) {
+    fb.disabled = true;
+    const chk = () => { fb.disabled = !(document.getElementById("ova").value.trim() && document.getElementById("ovj").value.trim()); };
+    document.getElementById("ova").addEventListener("input", chk); document.getElementById("ovj").addEventListener("input", chk);
+  }
+  fb.addEventListener("click", doFreeze);
+}
+function sub(ev) { if (ev.verdict === "INCONCLUSIVE") return ev.incon.join(" · "); if (ev.verdict === "DOES_NOT_MEET") return ev.hard.length + " hard-stop(s) failed"; if (ev.flags.length) return ev.flags.length + " flag(s) to handle"; return "All hard-stop rules pass"; }
+
+async function doFreeze() {
+  const ev = CURRENT.evaluation; let override = null;
+  if (ev.verdict === "MEETS" && ev.flags.length) override = { flags: ev.flags, approver: document.getElementById("ova").value.trim(), justification: document.getElementById("ovj").value.trim() };
+  const res = document.getElementById("result");
+  res.innerHTML = '<div style="text-align:center;padding:18px;color:var(--muted)"><span class="spin">↻</span> Freezing… SHA-256 + timestamp</div>';
+  const payload = { tender: { load_id: "EXT-" + Date.now().toString().slice(-5), carrier_mc: CURRENT.mc, tendered_at_utc: new Date().toISOString() }, carrier: CURRENT.carrier, fmcsa: CURRENT.fmcsa, policy_evaluation: ev, override };
+  const out = await TP.freeze(payload);
+  const v = TP.verdictMeta(ev);
+  res.innerHTML = `<div style="text-align:center;padding:6px 0 4px"><div style="width:44px;height:44px;border-radius:50%;background:var(--green-bg);color:var(--green2);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 8px">✓</div>
+    <div style="font-weight:800;font-size:14px">Defense file frozen</div><div style="font-size:11.5px;color:var(--muted);margin-top:2px">${CURRENT.carrier.name || CURRENT.mc} · <span class="verdict ${v.cls}" style="display:inline;padding:2px 7px;font-size:10.5px">${v.txt}</span></div></div>
+    <div class="seal"><div class="r"><span class="k">Snapshot SHA-256</span><span class="v">${out.payload_sha256.slice(0, 40)}…</span></div>
+    <div class="r"><span class="k">Record hash</span><span class="v">${out.record_hash.slice(0, 40)}…</span></div>
+    <div class="r"><span class="k">Timestamp</span><span class="v">${out.ts}</span></div></div>
+    <button class="btn btn-out" style="width:100%;margin-top:10px" id="again">Check another</button>`;
+  document.getElementById("again").addEventListener("click", () => { document.getElementById("result").classList.add("hide"); document.getElementById("mc").value = ""; document.getElementById("mc").focus(); });
+}
+
+</script>
+</body>
+</html>
