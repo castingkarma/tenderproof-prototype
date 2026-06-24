@@ -401,7 +401,7 @@ function renderCheck(){const r=CURRENT;const s=r.snap;const ev=r.ev;const f=s.fm
  const vk=vkey(ev);const v=V[vk];
  const snapHtml=found?`<div class="snap">
    <div class="row"><div class="k">Operating authority</div><div class="v">${f.authority.value} <span style="font-size:12px;color:var(--faint)">(${f.authority.type})</span></div><div class="src">source as of ${f.authority.as_of}</div></div>
-   <div class="row"><div class="k">Insurance on file</div><div class="v">$${(f.insurance.bipd).toLocaleString()} <span style="font-size:12px;color:var(--faint)">${f.insurance.status}</span></div><div class="src">${f.insurance.form} · as of ${f.insurance.as_of}</div></div>
+   <div class="row"><div class="k">Insurance on file</div><div class="v">$${(f.insurance.bipd).toLocaleString()} <span style="font-size:12px;color:var(--faint)">${f.insurance.status}</span></div><div class="src">${f.insurance.form?f.insurance.form+' · ':''}as of ${f.insurance.as_of}</div></div>
    <div class="row"><div class="k">Safety rating</div><div class="v">${f.safety.value}</div><div class="src">${f.safety.rated?'rated '+f.safety.rated+' · ':''}as of ${f.safety.as_of}</div></div>
    <div class="row"><div class="k">Out-of-service</div><div class="v">${f.oos.vehicle}% <span style="font-size:12px;color:var(--faint)">veh</span></div><div class="src">driver ${f.oos.driver}% · as of ${f.oos.as_of}</div></div>
  </div>`:`<div class="snap"><div class="row" style="border-right:none;grid-column:1/3"><div class="k">FMCSA lookup</div><div class="v" style="color:var(--slate)">No record returned for ${s.carrier.mc}</div><div class="src">Critical authority + insurance data unavailable</div></div></div>`;
@@ -451,10 +451,10 @@ async function doFreeze(){const r=CURRENT;
    <h2 style="font-size:17px;margin-bottom:4px">Defense file frozen</h2>
    <p style="font-size:13px;color:var(--muted);margin-bottom:6px">${r.load_id} · ${r.snap.carrier.name||r.carrier_mc} · <span class="bdg ${v[3]}">${v[4]}</span></p>
    <div class="seal" style="text-align:left;max-width:560px;margin:16px auto 0">
-     <div class="sr"><span class="sk">Snapshot SHA-256</span><span class="sv">${psha}</span></div>
-     <div class="sr"><span class="sk">Previous record hash</span><span class="sv">${prev.slice(0,32)}…</span></div>
-     <div class="sr"><span class="sk">Record hash</span><span class="sv">${rhash}</span></div>
-     <div class="sr"><span class="sk">RFC 3161 timestamp</span><span class="sv">${ts}</span></div>
+     <div class="sr"><span class="sk">Snapshot SHA-256</span><span class="sv">${r.payload_sha256}</span></div>
+     <div class="sr"><span class="sk">Previous record hash</span><span class="sv">${(r.prev_record_hash||'').slice(0,32)}…</span></div>
+     <div class="sr"><span class="sk">Record hash</span><span class="sv">${r.record_hash}</span></div>
+     <div class="sr"><span class="sk">RFC 3161 timestamp</span><span class="sv">${r.ts}</span></div>
    </div>
    <div style="display:flex;gap:10px;justify-content:center;margin-top:18px">
      <button class="btn btn-out" onclick="resetCheck()"><i class="ti ti-plus"></i> Check another</button>
@@ -471,7 +471,7 @@ function docHtml(r){const s=r.snap,f=s.fmcsa,ev=r.ev,vk=vkey(ev),v=V[vk];const f
  const snp=found?`<div class="kv">
    <div class="kk">Operating authority</div><div class="kk">Insurance on file</div>
    <div>${f.authority.value} (${f.authority.type})<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.authority.as_of}</div></div>
-   <div>$${f.insurance.bipd.toLocaleString()} ${f.insurance.form} · ${f.insurance.status}<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.insurance.as_of}</div></div>
+   <div>$${f.insurance.bipd.toLocaleString()} ${f.insurance.form?f.insurance.form+' · ':''}${f.insurance.status}<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.insurance.as_of}</div></div>
    <div class="kk">Safety rating</div><div class="kk">Out-of-service</div>
    <div>${f.safety.value}<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.safety.as_of}</div></div>
    <div>veh ${f.oos.vehicle}% · drv ${f.oos.driver}%<div class="rt" style="font-size:11px;color:var(--faint)">as of ${f.oos.as_of}</div></div>
