@@ -170,7 +170,7 @@ input.f:focus,textarea.f:focus{border-color:var(--green);box-shadow:0 0 0 3px rg
   <div class="main">
     <header class="top">
       <div><h1 id="ptitle">Dashboard</h1><div class="sub" id="psub">Per-load carrier-selection defense files</div></div>
-      <button class="btn btn-pri" onclick="go('newcheck')"><i class="ti ti-plus"></i> New check</button>
+      <div style="display:flex;align-items:center"><span id="apistat" style="font-size:11.5px;font-weight:600;margin-right:12px;color:var(--faint)">○ connecting…</span><button class="btn btn-pri" onclick="go('newcheck')"><i class="ti ti-plus"></i> New check</button></div>
     </header>
     <div class="content">
 
@@ -373,10 +373,29 @@ function resetCheck(){document.getElementById('nc1').classList.remove('hidden');
  document.getElementById('samplechips').innerHTML=SAMPLES.map(s=>`<div class="chip" onclick="document.getElementById('mcin').value='${s[0]}';runCheck()"><span class="d" style="background:${s[2]}"></span> ${s[1]} <span style="color:var(--faint)">${s[0]}</span></div>`).join('');}
 function setStep(n){document.querySelectorAll('#nsteps .stp').forEach(s=>{const i=+s.dataset.s;s.classList.toggle('on',i===n);s.classList.toggle('done',i<n);});}
 
-function runCheck(){const mc=document.getElementById('mcin').value.trim().toUpperCase()||"MC-000000";
- CURRENT=buildRecord({load_id:"BRKR-"+(48210+RECORDS.length),lane:"Laredo TX → Memphis TN",carrier_mc:mc,tendered:new Date().toISOString(),user:"dispatch@apexfreight.com"},null);
- document.getElementById('nc1').classList.add('hidden');document.getElementById('nc2').classList.remove('hidden');
- renderCheck();setStep(3);}
+/* ---------- live API (Render) with graceful fallback to the in-browser engine ---------- */
+const API_BASE="https://tenderproof-api.onrender.com";
+function setApiStatus(live){const el=document.getElementById('apistat');if(el)el.innerHTML=live?'<span style="color:var(--green2)">● Live API</span>':'<span style="color:var(--faint)">○ Demo (offline)</span>';}
+async function apiPOST(path,body){const r=await fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('http '+r.status);return r.json();}
+async function apiGET(path){const r=await fetch(API_BASE+path);if(!r.ok)throw new Error('http '+r.status);return r.json();}
+function vstrip(v){return(v||'').replace('_YOUR_POLICY','').replace('_DO_NOT_TENDER','');}
+function adaptEval(e){return{verdict:vstrip(e.verdict),results:(e.rule_results||[]).map(r=>({label:r.label,result:r.result,sev:r.severity})),flags:e.flags||[],hard:e.hard_fails||[],incon:e.inconclusive_reasons||[]};}
+function adaptCheck(api,mc){const f=api.fmcsa_snapshot||{};const found=!!f.operating_authority;return{
+ carrier:{name:api.carrier&&api.carrier.legal_name,dot:api.carrier&&api.carrier.dot,mc:(api.carrier&&api.carrier.mc)||mc,id_consistent:api.carrier&&api.carrier.identity_match&&api.carrier.identity_match.mc_to_dot_consistent,double_broker:api.carrier&&api.carrier.identity_match&&api.carrier.identity_match.double_broker_flag},
+ fmcsa:found?{authority:{value:f.operating_authority.value,type:f.operating_authority.type,as_of:f.operating_authority.source_as_of},insurance:{bipd:f.insurance_on_file&&f.insurance_on_file.bipd_limit_usd,form:f.insurance_on_file&&f.insurance_on_file.form,status:f.insurance_on_file&&f.insurance_on_file.status,as_of:f.insurance_on_file&&f.insurance_on_file.source_as_of},safety:{value:f.safety_rating&&f.safety_rating.value,rated:f.safety_rating&&f.safety_rating.rating_date,as_of:f.safety_rating&&f.safety_rating.source_as_of},oos:{vehicle:f.oos_rates&&f.oos_rates.vehicle_oos_pct,driver:f.oos_rates&&f.oos_rates.driver_oos_pct,as_of:f.oos_rates&&f.oos_rates.source_as_of}}:{},
+ evaluation:adaptEval(api.evaluation)};}
+
+async function runCheck(){const mc=document.getElementById('mcin').value.trim().toUpperCase()||"MC-000000";
+ const tender={load_id:"BRKR-"+(48210+RECORDS.length),lane:"Laredo TX → Memphis TN",carrier_mc:mc,tendered:new Date().toISOString(),user:"dispatch@apexfreight.com"};
+ document.getElementById('nc1').classList.add('hidden');document.getElementById('nc2').classList.remove('hidden');setStep(3);
+ document.getElementById('nc2').innerHTML='<div class="card"><div class="bd freeze-box"><div style="font-size:28px;color:var(--green)"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i></div><h2 style="font-size:15px;margin:12px 0 4px">Checking FMCSA…</h2><p style="font-size:12.5px;color:var(--muted)">Live API — first request may take ~50s to wake the server</p></div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+ try{const api=await apiPOST('/api/check',{mc});const a=adaptCheck(api,mc);
+  CURRENT={...tender,carrier_mc:mc,snap:{carrier:a.carrier,fmcsa:a.fmcsa},ev:a.evaluation,override:null,
+   payload:{tender,carrier:a.carrier,fmcsa:a.fmcsa,policy:{name:POLICY.name,version:POLICY.version,scope:POLICY.scope},evaluation:a.evaluation,override:null,disclaimer:DISCLAIMER},
+   frozen_label:'—',payload_sha256:'(on freeze)',record_hash:'(on freeze)',ts:'(on freeze)'};
+  setApiStatus(true);}
+ catch(e){CURRENT=buildRecord(tender,null);setApiStatus(false);}
+ renderCheck();}
 
 function renderCheck(){const r=CURRENT;const s=r.snap;const ev=r.ev;const f=s.fmcsa;const found=!!s.carrier.name;
  const vk=vkey(ev);const v=V[vk];
@@ -414,13 +433,16 @@ async function doFreeze(){const r=CURRENT;
    r.override={flags:r.ev.flags,approver:a,justification:j};r.payload.override=r.override;}
  setStep(4);
  document.getElementById('nc2').innerHTML=`<div class="card"><div class="bd freeze-box"><div style="font-size:30px;color:var(--green)"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i></div><h2 style="font-size:16px;margin:12px 0 4px">Freezing defense file…</h2><p style="font-size:13px;color:var(--muted)">Canonical JSON → SHA-256 → trusted timestamp → hash chain</p></div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
- const prev=RECORDS.length?RECORDS[0].record_hash:"0".repeat(64);
- const payloadStr=sortedStringify(r.payload);
- const psha=await sha256(payloadStr);
- const ts=new Date().toISOString().replace('T',' ').slice(0,19)+" UTC";
- const core={seq:RECORDS.length,payload_sha256:psha,prev_record_hash:prev,frozen:ts};
- const rhash=await sha256(sortedStringify(core));
- r.payload_sha256=psha;r.prev_record_hash=prev;r.record_hash=rhash;r.ts=ts;r.frozen_label=new Date().toISOString().slice(11,16)+" UTC";
+ try{
+   const tender={load_id:r.load_id,lane:r.lane,carrier_mc:r.carrier_mc,tendered_at_utc:new Date().toISOString(),broker_user:"dispatch@apexfreight.com"};
+   const out=await apiPOST('/api/freeze',{tender,override:r.override||null});
+   r.payload_sha256=out.payload_sha256;r.prev_record_hash=out.prev_record_hash;r.record_hash=out.record_hash;
+   r.ts=(out.tsr&&out.tsr.time_utc)?out.tsr.time_utc.replace('T',' ').slice(0,19)+" UTC":(out.frozen_at_utc||'').replace('T',' ').slice(0,19)+" UTC";
+   r.frozen_label=(out.frozen_at_utc||new Date().toISOString()).slice(11,16)+" UTC";setApiStatus(true);
+ }catch(e){
+   const prev=RECORDS.length?RECORDS[0].record_hash:"0".repeat(64);const psha=await sha256(sortedStringify(r.payload));const ts=new Date().toISOString().replace('T',' ').slice(0,19)+" UTC";const core={seq:RECORDS.length,payload_sha256:psha,prev_record_hash:prev,frozen:ts};const rhash=await sha256(sortedStringify(core));
+   r.payload_sha256=psha;r.prev_record_hash=prev;r.record_hash=rhash;r.ts=ts;r.frozen_label=new Date().toISOString().slice(11,16)+" UTC";setApiStatus(false);
+ }
  RECORDS.unshift(r);
  await new Promise(z=>setTimeout(z,650));
  const vk=vkey(r.ev);const v=V[vk];
@@ -496,7 +518,9 @@ function downloadPDF(){const r=DETAIL;if(!r){return;}
 function tog(el){el.classList.toggle('ck');const all=document.querySelectorAll('.ack');const done=[...all].every(a=>a.classList.contains('ck'));document.getElementById('obbtn').disabled=!done;}
 function acceptOb(){document.getElementById('obwrap').classList.add('hidden');}
 
-seed();renderDash();
+renderDash();
+/* warm the free Render instance + reflect live/demo status on load */
+(async()=>{try{await apiGET('/api/health');setApiStatus(true);}catch(e){setApiStatus(false);}})();
 </script>
 </body>
 </html>
